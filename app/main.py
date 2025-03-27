@@ -18,3 +18,13 @@ async def display_home_page(request: Request):
             "current_time" : current_time
         }
     )
+
+@app.get("/show_experiment", response_class = HTMLResponse)
+async def display_experiment_page(request : Request, id : int = 0):
+    return templates.TemplateResponse(
+        request = request, 
+        name = "show_experiment.html",
+        context = {
+            "experiment_id" : id
+        }
+    )
