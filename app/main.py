@@ -2,23 +2,19 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
+from pydantic import BaseModel
 from typing import Annotated
 
-from datetime import datetime
 
 app = FastAPI()
 templates = Jinja2Templates(directory = "../templates")
 
-current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 @app.get("/", response_class = HTMLResponse)
 async def display_home_page(request: Request):
     return templates.TemplateResponse(
         request = request, 
-        name = "home.html", 
-        context = {
-            "current_time" : current_time
-        }
+        name = "home.html"
     )
 
 @app.get("/show_experiment", response_class = HTMLResponse)
@@ -38,21 +34,24 @@ async def new_experiment_page(request : Request):
         name = "new_experiment.html"
     )
 
+class NewExperiment(BaseModel):
+    coffee_beans : str
+    grind_level : int
+    amount_gr : float
+    extr_time_sec : float
+    outp_ml : float
+
 @app.post("/new_experiment", response_class = HTMLResponse)
 async def enter_new_experiment(
     request : Request, 
-    coffee_beans : Annotated[str, Form()],
-    grind_level : Annotated[int, Form()], 
-    amount_gr : Annotated[float, Form()], 
-    extr_time_sec : Annotated[int, Form()], 
-    outp_ml : Annotated[float, Form()]
+    form_data : Annotated[NewExperiment, Form()],
 ):
     
-    extr_ratio = round(outp_ml / amount_gr, 2)
+    extr_ratio = round(form_data.outp_ml / form_data.amount_gr, 2)
 
-    if extr_time_sec < 25:
+    if form_data.extr_time_sec < 25:
         extr_time_message = "Too short extraction time"
-    elif extr_time_sec > 30:
+    elif form_data.extr_time_sec > 30:
         extr_time_message = "Too long extraction time"
     else:
         extr_time_message = "Good extraction time"
@@ -61,11 +60,11 @@ async def enter_new_experiment(
         request = request, 
         name = "new_experiment.html", 
         context = {
-            "coffee_beans" : coffee_beans,
-            "grind_level" : grind_level,
-            "amount_gr" : amount_gr,
-            "extr_time_sec" : extr_time_sec,
-            "outp_ml" : outp_ml,
+            "coffee_beans" : form_data.coffee_beans,
+            "grind_level" : form_data.grind_level,
+            "amount_gr" : form_data.amount_gr,
+            "extr_time_sec" : form_data.extr_time_sec,
+            "outp_ml" : form_data.outp_ml,
             "extr_ratio" : extr_ratio, 
             "extr_time_message" : extr_time_message
         }
