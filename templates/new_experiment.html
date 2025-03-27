@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} New experiment {% endblock %}</h1>
+    <h2>Fill in the following form</h2>
+    <form method="POST" action="/new_experiment" id="new_exp_form">
+        Coffee beans : <input type="text" name="coffee_beans" value={{coffee_beans}}> <br>
+        Grind level : <input type="text" name="grind_level" value={{grind_level}}> <br>
+        Amount (grams) : <input type="text" name="amount_gr" value={{amount_gr}}> <br>
+        Extraction time (sec) : <input type="text" name="extr_time_sec" value={{extr_time_sec}}> <br>
+        Output (ml) : <input type="text" name="outp_ml" value={{outp_ml}}> <br>
+        <input type="submit" value="Submit">
+    </form>
+    <h2>Experiment results</h2>
+    Extraction ratio : {{ extr_ratio }} <br>
+    Extraction length : {{ extr_time_message }}
+{% endblock %}
