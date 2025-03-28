@@ -9,6 +9,8 @@ from typing import Annotated
 app = FastAPI()
 templates = Jinja2Templates(directory = "../templates")
 
+coffee_beans_list = ["Lavazza", "Segafredo", "Tchibo"]
+
 
 @app.get("/", response_class = HTMLResponse)
 async def display_home_page(request: Request):
@@ -31,7 +33,10 @@ async def display_experiment_page(request : Request, id : int = 0):
 async def new_experiment_page(request : Request):
     return templates.TemplateResponse(
         request = request, 
-        name = "new_experiment.html"
+        name = "new_experiment.html",
+        context = {
+            "coffee_beans_list" : coffee_beans_list
+        }
     )
 
 class NewExperiment(BaseModel):
@@ -44,7 +49,7 @@ class NewExperiment(BaseModel):
 @app.post("/new_experiment", response_class = HTMLResponse)
 async def enter_new_experiment(
     request : Request, 
-    form_data : Annotated[NewExperiment, Form()],
+    form_data : Annotated[NewExperiment, Form()]
 ):
     
     extr_ratio = round(form_data.outp_ml / form_data.amount_gr, 2)
@@ -60,6 +65,7 @@ async def enter_new_experiment(
         request = request, 
         name = "new_experiment.html", 
         context = {
+            "coffee_beans_list" : coffee_beans_list, 
             "coffee_beans" : form_data.coffee_beans,
             "grind_level" : form_data.grind_level,
             "amount_gr" : form_data.amount_gr,
