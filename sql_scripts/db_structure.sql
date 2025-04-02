@@ -25,13 +25,14 @@ CREATE TABLE IF NOT EXISTS Users (
 CREATE TABLE IF NOT EXISTS CoffeeMachines (
     id INT AUTO_INCREMENT NOT NULL, 
     manufacturer VARCHAR(255) NOT NULL,
-    model_series VARCHAR(255) NOT NULL,
-    model_name VARCHAR(255),
+    model_name VARCHAR(255) NOT NULL,
+    model_name_add VARCHAR(255),
     model_specification VARCHAR(255),
     model_serial VARCHAR(255) NOT NULL,
     pump_pressure_bar SMALLINT NOT NULL,
     pump_type VARCHAR(255),
     water_temp_control VARCHAR(255),
+    pid_control ENUM('automatic', 'programmable'),
     boiler_type VARCHAR(255),
     portafilter_diam_mm SMALLINT NOT NULL,
     PRIMARY KEY (id)
