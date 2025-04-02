@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS Users (
     last_name VARCHAR(255),
     date_of_birth DATE,
     registration_date DATE NOT NULL,
-    user_type ENUM('home barrista', 'professional barrista', 'developer') NOT NULL,
+    user_type ENUM('home barista', 'professional barista', 'developer') NOT NULL,
     PRIMARY KEY (id)
 );
 
