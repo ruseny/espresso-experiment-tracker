@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS CoffeeMachines (
 CREATE TABLE IF NOT EXISTS Grinders (
     id INT AUTO_INCREMENT NOT NULL, 
     manufacturer VARCHAR(255) NOT NULL,
-    model_series VARCHAR(255) NOT NULL,
-    model_name VARCHAR(255),
+    model_name VARCHAR(255) NOT NULL,
+    model_name_add VARCHAR(255),
     model_specification VARCHAR(255),
     model_serial VARCHAR(255) NOT NULL,
     operation_type ENUM('manual', 'electric') NOT NULL,
