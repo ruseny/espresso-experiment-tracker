@@ -1,3 +1,11 @@
+/*
+    This script creates the database structure for the Espresso Experiment Tracker.
+    It includes tables for users, coffee machines, grinders, portafilters, equipment setups,
+    coffee bean varieties, coffee bean purchases, and espresso experiments.
+    The file can be used in the MySQL shell with `source path/to/this/file.sql`, 
+    or from the command line with `mysql [-u username -p] < path/to/this/file.sql`.
+*/
+
 CREATE DATABASE IF NOT EXISTS espresso_experiment_tracker;
 USE espresso_experiment_tracker;
 
