@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS espresso_experiment_tracker;
+USE espresso_experiment_tracker;
+
 CREATE TABLE IF NOT EXISTS Users (
     id INT AUTO_INCREMENT NOT NULL, 
     username VARCHAR(255) NOT NULL,
