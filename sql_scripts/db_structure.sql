@@ -49,10 +49,11 @@ CREATE TABLE IF NOT EXISTS Grinders (
     burr_shape VARCHAR(255),
     burr_diameter_mm SMALLINT,
     burr_material VARCHAR(255),
-    min_fine_setting SMALLINT NOT NULL,
-    max_fine_setting SMALLINT NOT NULL,
+    min_fine_setting SMALLINT,
+    max_fine_setting SMALLINT,
     min_coarse_setting SMALLINT,
-    max_coarse_setting SMALLINT,
+    max_coarse_setting SMALLINT, 
+    single_dose ENUM('yes', 'no'),
     PRIMARY KEY (id)
 );
 
@@ -63,9 +64,9 @@ CREATE TABLE IF NOT EXISTS Portafilters (
     model_specification VARCHAR(255),
     model_serial VARCHAR(255) NOT NULL,
     basket_diameter_mm SMALLINT NOT NULL,
-    basket_depth_mm SMALLINT,
+    -- basket_depth_mm SMALLINT,
     pressurized ENUM('yes', 'no') NOT NULL,
-    basket_shot_size ENUM('single', 'double', 'triple') NOT NULL,
+    basket_shot_size ENUM('single', 'double', 'triple', 'quadruple') NOT NULL,
     spout ENUM('single', 'double', 'bottomless') NOT NULL,
     PRIMARY KEY (id)
 );
@@ -76,6 +77,7 @@ CREATE TABLE IF NOT EXISTS EquipmentSetup (
     coffee_machine_id INT NOT NULL,
     grinder_id INT NOT NULL,
     portafilter_id INT,
+    setup_name VARCHAR(255),
     PRIMARY KEY (id),
     FOREIGN KEY (coffee_machine_id) REFERENCES CoffeeMachines(id)
         ON DELETE CASCADE
@@ -151,5 +153,11 @@ CREATE TABLE IF NOT EXISTS EspressoExperiments (
         ON UPDATE CASCADE,
     FOREIGN KEY (coffee_bean_id) REFERENCES CoffeeBeanPurchases(id)
         ON DELETE CASCADE
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE, 
+    CONSTRAINT eval_range CHECK(
+        (evaluation_general IS NULL OR evaluation_general BETWEEN 1 AND 10) AND
+        (evaluation_flavor IS NULL OR evaluation_flavor BETWEEN 1 AND 10) AND
+        (evaluation_body IS NULL OR evaluation_body BETWEEN 1 AND 10) AND
+        (evaluation_crema IS NULL OR evaluation_crema BETWEEN 1 AND 10)
+    )
 );
