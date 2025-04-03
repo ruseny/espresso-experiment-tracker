@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS EspressoExperiments (
     FOREIGN KEY (setup_id) REFERENCES EquipmentSetup(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    FOREIGN KEY (coffee_bean_id) REFERENCES CoffeeBeanPurchases(id)
+    FOREIGN KEY (coffee_bean_purchase_id) REFERENCES CoffeeBeanPurchases(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE, 
     CONSTRAINT eval_range CHECK(
