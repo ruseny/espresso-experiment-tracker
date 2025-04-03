@@ -5,11 +5,22 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Annotated
 
+from datetime import date
+
 
 app = FastAPI()
 templates = Jinja2Templates(directory = "../templates")
 
 coffee_beans_list = ["Lavazza", "Segafredo", "Tchibo"]
+
+# import mysql.connector
+# mysql_db = mysql.connector.connect(
+#     host = "localhost", 
+#     user = "app_connection", 
+#     password = "Z4r*95qTT$^SGwVV", 
+#     database = "espresso_experiment_tracker"
+# )
+# db_cursor = mysql_db.cursor()
 
 
 @app.get("/", response_class = HTMLResponse)
@@ -40,38 +51,39 @@ async def new_experiment_page(request : Request):
     )
 
 class NewExperiment(BaseModel):
+    equipment_setup_id : int = 1
     coffee_beans : str
-    grind_level : int
-    amount_gr : float
-    extr_time_sec : float
-    outp_ml : float
+    grind_setting : int
+    dose_gr : float
+    wdt_used : str = "yes"
+    leveler_used : str = "no"
+    puck_screen_used : str = "yes"
+    extraction_time_sec : float
+    # water_temp_c : Optional[int] = Form(None)
+    yield_gr : float
 
-@app.post("/new_experiment", response_class = HTMLResponse)
+@app.post("/new_experiment", response_class = HTMLResponse, response_model = NewExperiment)
 async def enter_new_experiment(
     request : Request, 
     form_data : Annotated[NewExperiment, Form()]
 ):
     
-    extr_ratio = round(form_data.outp_ml / form_data.amount_gr, 2)
-
-    if form_data.extr_time_sec < 25:
-        extr_time_message = "Too short extraction time"
-    elif form_data.extr_time_sec > 30:
-        extr_time_message = "Too long extraction time"
-    else:
-        extr_time_message = "Good extraction time"
+    # experiment_date = date.today()
 
     return templates.TemplateResponse(
         request = request, 
         name = "new_experiment.html", 
         context = {
-            "coffee_beans_list" : coffee_beans_list, 
+            "coffee_beans_list" : coffee_beans_list,
+            "equipment_setup_id" : form_data.equipment_setup_id,  
             "coffee_beans" : form_data.coffee_beans,
-            "grind_level" : form_data.grind_level,
-            "amount_gr" : form_data.amount_gr,
-            "extr_time_sec" : form_data.extr_time_sec,
-            "outp_ml" : form_data.outp_ml,
-            "extr_ratio" : extr_ratio, 
-            "extr_time_message" : extr_time_message
+            "grind_setting" : form_data.grind_setting,
+            "dose_gr" : form_data.dose_gr,
+            "wdt_used" : form_data.wdt_used, 
+            "leveler_used" : form_data.leveler_used, 
+            "puck_screen_used" : form_data.puck_screen_used, 
+            "extraction_time_sec" : form_data.extraction_time_sec,
+            # "water_temp_c" : form_data.water_temp_c, 
+            "yield_gr" : form_data.yield_gr
         }
     )

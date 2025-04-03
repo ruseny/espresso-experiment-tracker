@@ -4,19 +4,41 @@
     <h1>{% block title %} New experiment {% endblock %}</h1>
     <h2>Fill in the following form</h2>
     <form method="POST" action="/new_experiment" id="new_exp_form">
+        Equipment setup, enter id : <input type="text" name="equipment_setup_id" value={{equipment_setup_id}}> <br>
         Coffee beans : <select name="coffee_beans">
             {% for bean in coffee_beans_list %}
                 <option value="{{ bean }}">{{ bean }}</option>
             {% endfor %}
         </select> <br>
-        Grind level : <input type="text" name="grind_level" value={{grind_level}}> <br>
-        Amount (grams) : <input type="text" name="amount_gr" value={{amount_gr}}> <br>
-        Extraction time (sec) : <input type="text" name="extr_time_sec" value={{extr_time_sec}}> <br>
-        Output (ml) : <input type="text" name="outp_ml" value={{outp_ml}}> <br>
+        Grind level : <input type="text" name="grind_setting" value={{grind_setting}}> <br>
+        Amount (grams) : <input type="text" name="dose_gr" value={{dose_gr}}> <br>
+        WDT used ? <select name="wdt_used">
+            <option value="yes">yes</option>
+            <option value="no">no</option> 
+        </select>
+        Leveler used ? <select name="leveler_used">
+            <option value="no">no</option> 
+            <option value="yes">yes</option>
+        </select>
+        Puck screen used ? <select name="puck_screen_used">
+            <option value="yes">yes</option>
+            <option value="no">no</option> 
+        </select> <br>
+        Extraction time (sec) : <input type="text" name="extraction_time_sec" value={{extraction_time_sec}}> <br>
+        <!-- Water temperature (C) : <input type="text" name="water_temp_c" value="{{water_temp_c}}"> <br> -->
+        Output (ml) : <input type="text" name="yield_gr" value={{yield_gr}}> <br>
         <input type="submit" value="Submit">
     </form>
-    <h2>Experiment results</h2>
-    Selected beans : {{ coffee_beans }} <br>
-    Extraction ratio : {{ extr_ratio }} <br>
-    Extraction length : {{ extr_time_message }}
+
+    <h2>Print last inputs:</h2>
+    <p>{{ equipment_setup_id }} <br>
+        {{ coffee_beans }} <br>
+        {{ grind_setting }} <br>
+        {{ dose_gr }} <br>
+        {{ wdt_used }} <br>
+        {{ leveler_used }} <br>
+        {{ puck_screen_used }} <br>
+        {{ extraction_time_sec }} <br>
+        <!-- {{ water_temp_c }} <br> -->
+        {{ yield_gr }}</p>
 {% endblock %}
