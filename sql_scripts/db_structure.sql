@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS CoffeeMachines (
     pump_pressure_bar SMALLINT NOT NULL,
     pump_type VARCHAR(255),
     water_temp_control VARCHAR(255),
-    pid_control ENUM('automatic', 'programmable'),
+    pid_control ENUM('automatic', 'programmable', ''),
     boiler_type VARCHAR(255),
     portafilter_diam_mm SMALLINT NOT NULL,
     PRIMARY KEY (id)
