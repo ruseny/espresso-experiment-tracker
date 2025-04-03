@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS EspressoExperiments (
     id INT AUTO_INCREMENT NOT NULL, 
     experiment_date DATE NOT NULL,
     setup_id INT NOT NULL,
-    coffee_bean_id INT NOT NULL,
+    coffee_bean_purchase_id INT NOT NULL,
     grind_setting SMALLINT NOT NULL,
     dose_gr DECIMAL(5,2) NOT NULL,
     wdt_used ENUM('yes', 'no') NOT NULL,
