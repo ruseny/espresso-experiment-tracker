@@ -1,11 +1,13 @@
 from fastapi import FastAPI, Request, Form
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from fastapi import status
 
 from pydantic import BaseModel
 from typing import Annotated
 
 from datetime import date
+import json
 
 
 app = FastAPI()
@@ -31,13 +33,13 @@ async def display_home_page(request: Request):
     )
 
 @app.get("/show_experiment", response_class = HTMLResponse)
-async def display_experiment_page(request : Request, id : int = 0):
+async def display_experiment_page(request : Request):
+    with open("experiment_data.json", "r") as f:
+        experiment_data = json.load(f)
     return templates.TemplateResponse(
         request = request, 
         name = "show_experiment.html",
-        context = {
-            "experiment_id" : id
-        }
+        context = experiment_data
     )
 
 @app.get("/new_experiment", response_class = HTMLResponse)
@@ -62,28 +64,12 @@ class NewExperiment(BaseModel):
     # water_temp_c : Optional[int] = Form(None)
     yield_gr : float
 
-@app.post("/new_experiment", response_class = HTMLResponse, response_model = NewExperiment)
+@app.post("/new_experiment", response_class = RedirectResponse)
 async def enter_new_experiment(
     request : Request, 
     form_data : Annotated[NewExperiment, Form()]
 ):
-    
-    # experiment_date = date.today()
+    with open("experiment_data.json", "w") as f:
+        f.write(f"{form_data.model_dump_json()}")
 
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_experiment.html", 
-        context = {
-            "coffee_beans_list" : coffee_beans_list,
-            "equipment_setup_id" : form_data.equipment_setup_id,  
-            "coffee_beans" : form_data.coffee_beans,
-            "grind_setting" : form_data.grind_setting,
-            "dose_gr" : form_data.dose_gr,
-            "wdt_used" : form_data.wdt_used, 
-            "leveler_used" : form_data.leveler_used, 
-            "puck_screen_used" : form_data.puck_screen_used, 
-            "extraction_time_sec" : form_data.extraction_time_sec,
-            # "water_temp_c" : form_data.water_temp_c, 
-            "yield_gr" : form_data.yield_gr
-        }
-    )
+    return RedirectResponse(url = "/show_experiment", status_code=status.HTTP_302_FOUND)

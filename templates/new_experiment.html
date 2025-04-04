@@ -3,7 +3,7 @@
 {% block content %}
     <h1>{% block title %} New experiment {% endblock %}</h1>
     <h2>Fill in the following form</h2>
-    <form method="POST" action="/new_experiment" id="new_exp_form">
+    <form method="POST" action="#" id="new_exp_form">
         Equipment setup, enter id : <input type="text" name="equipment_setup_id" value={{equipment_setup_id}}> <br>
         Coffee beans : <select name="coffee_beans">
             {% for bean in coffee_beans_list %}
