@@ -15,14 +15,6 @@ templates = Jinja2Templates(directory = "../templates")
 
 coffee_beans_list = ["Lavazza", "Segafredo", "Tchibo"]
 
-# import mysql.connector
-# mysql_db = mysql.connector.connect(
-#     host = "localhost", 
-#     user = "app_connection", 
-#     password = "Z4r*95qTT$^SGwVV", 
-#     database = "espresso_experiment_tracker"
-# )
-# db_cursor = mysql_db.cursor()
 
 
 @app.get("/", response_class = HTMLResponse)
