@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS Users (
     first_name VARCHAR(255),
     last_name VARCHAR(255),
     date_of_birth DATE,
-    registration_date DATE NOT NULL,
+    registration_datetime DATETIME NOT NULL,
     user_type ENUM('home barista', 'professional barista', 'developer') NOT NULL,
     PRIMARY KEY (id)
 );
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS CoffeeBeanPurchases (
 
 CREATE TABLE IF NOT EXISTS EspressoExperiments (
     id INT AUTO_INCREMENT NOT NULL, 
-    experiment_date DATE NOT NULL,
+    experiment_datetime DATETIME NOT NULL,
     setup_id INT NOT NULL,
     coffee_bean_purchase_id INT NOT NULL,
     grind_setting SMALLINT NOT NULL,

@@ -3,7 +3,7 @@ INSERT INTO Users (
     first_name,
     last_name,
     date_of_birth,
-    registration_date,
+    registration_datetime,
     user_type
 )
 VALUES
@@ -12,7 +12,7 @@ VALUES
         'Rusen',
         'Yasar', 
         '1987-03-03',
-        '2025-04-02',
+        '2025-04-02 12:00:00',
         'home barista'
     ), 
     (
@@ -20,7 +20,7 @@ VALUES
         '',
         '',
         NULL,
-        '2025-04-02',
+        '2025-04-02 12:00:00',
         'developer'
     );
 
@@ -356,7 +356,7 @@ VALUES
     );
 
 INSERT INTO EspressoExperiments (
-    experiment_date,
+    experiment_datetime,
     setup_id,
     coffee_bean_purchase_id,
     grind_setting,
@@ -374,7 +374,7 @@ INSERT INTO EspressoExperiments (
 )
 VALUES
     (
-        '2025-04-03', 
+        '2025-04-03 10:00:00', 
         1, 
         1, 
         12, 
