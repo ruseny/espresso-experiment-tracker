@@ -3,14 +3,14 @@
 {% block content %}
     <h1>{% block title %} Show experiment {% endblock %}</h1>
     <h2>Print last inputs:</h2>
-    <p>{{ equipment_setup_id }} <br>
-        {{ coffee_beans }} <br>
-        {{ grind_setting }} <br>
-        {{ dose_gr }} <br>
-        {{ wdt_used }} <br>
-        {{ leveler_used }} <br>
-        {{ puck_screen_used }} <br>
-        {{ extraction_time_sec }} <br>
-        <!-- {{ water_temp_c }} <br> -->
-        {{ yield_gr }}</p>
+    <p>Setup id : {{ setup_id }} <br>
+        Coffe beans (purchase id) :  {{ coffee_bean_purchase_id }} <br>
+        Grind level : {{ grind_setting }} <br>
+        Amount : {{ dose_gr }} <br>
+        WDT : {{ wdt_used }} <br>
+        Leveler : {{ leveler_used }} <br>
+        Puck screen : {{ puck_screen_used }} <br>
+        Extraction time : {{ extraction_time_sec }} <br>
+        Water temperature : {{ water_temp_c }} <br>
+        Output : {{ yield_gr }}</p>
 {% endblock %}

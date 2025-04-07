@@ -4,10 +4,10 @@
     <h1>{% block title %} New experiment {% endblock %}</h1>
     <h2>Fill in the following form</h2>
     <form method="POST" action="#" id="new_exp_form">
-        Equipment setup, enter id : <input type="text" name="equipment_setup_id" value={{equipment_setup_id}}> <br>
-        Coffee beans : <select name="coffee_beans">
-            {% for bean in coffee_beans_list %}
-                <option value="{{ bean }}">{{ bean }}</option>
+        Equipment setup, enter id : <input type="text" name="setup_id" value={{setup_id}}> <br>
+        Coffee beans : <select name="coffee_bean_purchase_id">
+            {% for id in coffee_beans_purchase_mapper %}
+                <option value="{{ id }}">{{ coffee_beans_purchase_mapper[id] }}</option>
             {% endfor %}
         </select> <br>
         Grind level : <input type="text" name="grind_setting" value={{grind_setting}}> <br>
@@ -25,8 +25,8 @@
             <option value="no">no</option> 
         </select> <br>
         Extraction time (sec) : <input type="text" name="extraction_time_sec" value={{extraction_time_sec}}> <br>
-        <!-- Water temperature (C) : <input type="text" name="water_temp_c" value="{{water_temp_c}}"> <br> -->
-        Output (ml) : <input type="text" name="yield_gr" value={{yield_gr}}> <br>
+        Water temperature (C) : <input type="text" name="water_temp_c" value="{{water_temp_c}}"> <br>
+        Output (gr) : <input type="text" name="yield_gr" value={{yield_gr}}> <br>
         <input type="submit" value="Submit">
     </form>
 {% endblock %}

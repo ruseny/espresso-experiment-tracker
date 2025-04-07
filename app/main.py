@@ -3,17 +3,20 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi import status
 
-from pydantic import BaseModel
-from typing import Annotated
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+from enum import Enum
 
-from datetime import date
+from pydantic import BaseModel
+from typing import Annotated, List, Literal, Optional
+
+from datetime import datetime, date
 import json
 
 
 app = FastAPI()
 templates = Jinja2Templates(directory = "../templates")
 
-coffee_beans_list = ["Lavazza", "Segafredo", "Tchibo"]
+coffee_beans_purchase_mapper = {1 : "Lavazza", 2 : "Segafredo", 3 : "Tchibo"}
 
 
 
@@ -40,26 +43,37 @@ async def new_experiment_page(request : Request):
         request = request, 
         name = "new_experiment.html",
         context = {
-            "coffee_beans_list" : coffee_beans_list
+            "coffee_beans_purchase_mapper" : coffee_beans_purchase_mapper
         }
     )
 
-class NewExperiment(BaseModel):
-    equipment_setup_id : int = 1
-    coffee_beans : str
-    grind_setting : int
-    dose_gr : float
-    wdt_used : str = "yes"
-    leveler_used : str = "no"
-    puck_screen_used : str = "yes"
-    extraction_time_sec : float
-    # water_temp_c : Optional[int] = Form(None)
-    yield_gr : float
+class YesNo(str, Enum):
+    yes = "yes"
+    no = "no"
+
+class EspressoExperiments(SQLModel, table = True):
+    id : Optional[int] = Field(default=None, primary_key=True)
+    experiment_datetime : datetime = Field(default_factory = datetime.now)
+    setup_id : int = Field(default = 1, foreign_key = "EquipmentSetup.id")
+    coffee_bean_purchase_id : int = Field(default = None, foreign_key = "CoffeeBeanPurchases.id")
+    grind_setting : int = Field(default = None)
+    dose_gr : float = Field(default = None)
+    wdt_used : YesNo = Field(default = "yes")
+    leveler_used : YesNo = Field(default = "no")
+    puck_screen_used : YesNo = Field(default = "yes")
+    extraction_time_sec : int = Field(default = None)
+    water_temp_c : Optional[int] = Field(default = 93)
+    yield_gr : float = Field(default = None)
+    evaluation_general : Optional[int] = Field(default = None, ge = 1, le = 10)
+    evaluation_flavor : Optional[int] = Field(default = None, ge = 1, le = 10)
+    evaluation_body : Optional[int] = Field(default = None, ge = 1, le = 10)
+    evaluation_crema : Optional[int] = Field(default = None, ge = 1, le = 10)
+    evaluation_notes : Optional[str] = Field(default = None)
 
 @app.post("/new_experiment", response_class = RedirectResponse)
 async def enter_new_experiment(
     request : Request, 
-    form_data : Annotated[NewExperiment, Form()]
+    form_data : Annotated[EspressoExperiments, Form()]
 ):
     with open("experiment_data.json", "w") as f:
         f.write(f"{form_data.model_dump_json()}")
