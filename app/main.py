@@ -1,25 +1,42 @@
+"""
+App for tracking espresso experiments.
+"""
+
+# Library imports
 from fastapi import FastAPI, Request, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlmodel import select
 from typing import Annotated
 
+# Local module imports:
 from .dependencies.db_session import SessionDep
 from .data_models.db_models import EspressoExperiments
-from .crud.purchase_dict import get_purchase_dict
+from .crud.selection_dicts import get_purchase_dict, get_user_dict
 
-
+# Initialise app and frontend
 app = FastAPI()
 templates = Jinja2Templates(directory = "../templates")
 
+# Variables to share across requests
+app.state.current_user = 0
+user_dict = get_user_dict()
 
 
 @app.get("/", response_class = HTMLResponse)
 async def display_home_page(request: Request):
     return templates.TemplateResponse(
         request = request, 
-        name = "home.html"
+        name = "home.html", 
+        context = {
+            "user_dict" : user_dict
+        }
     )
+
+@app.post("/", response_class = RedirectResponse)
+async def enter_user(user_id : Annotated[int, Form()]):
+    app.state.current_user = user_id
+    return RedirectResponse(url = "/new_experiment", status_code=status.HTTP_302_FOUND)
 
 @app.get("/show_experiment", response_class = HTMLResponse)
 async def display_experiment_page(request : Request, session : SessionDep):
@@ -34,11 +51,15 @@ async def display_experiment_page(request : Request, session : SessionDep):
 @app.get("/new_experiment", response_class = HTMLResponse)
 async def new_experiment_page(request : Request):
     purchase_dict = get_purchase_dict()
+    if app.state.current_user == 0:
+        return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
+    user_name = user_dict[app.state.current_user]
     return templates.TemplateResponse(
         request = request, 
         name = "new_experiment.html",
         context = {
-            "purchase_dict" : purchase_dict
+            "purchase_dict" : purchase_dict,
+            "current_user" : user_name
         }
     )
 
