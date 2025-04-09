@@ -1,17 +1,108 @@
-from enum import Enum
 from sqlmodel import SQLModel, Field
 from typing import Optional
 from datetime import date, datetime
- 
 
-class YesNo(str, Enum):
-    yes = "yes"
-    no = "no"
+from enum_defs import UserTypes, PidTypes, OperationTypes, YesNo, BasketSizes, SpoutTypes, OriginTypes
+
+
+class Users(SQLModel, table = True):
+    __tablename__ = "Users"
+    id : Optional[int] = Field(default = None, primary_key = True)
+    username : str = Field(default = None)
+    # password_hash : str = Field(default = None)
+    # email : str = Field(default = None)
+    first_name : Optional[str] = Field(default = None)
+    last_name : Optional[str] = Field(default = None)
+    date_of_birth : Optional[date] = Field(default = None)
+    registration_datetime : datetime = Field(default_factory = datetime.now)
+    user_type : UserTypes = Field(default = "developer")
+
+class CoffeeMachines(SQLModel, table = True):
+    __tablename__ = "EspressoMachines"
+    id : Optional[int] = Field(default = None, primary_key = True)
+    manufacturer : str = Field(default = None)
+    model_name : str = Field(default = None)
+    model_name_add : Optional[str] = Field(default = None)
+    model_specification : Optional[str] = Field(default = None)
+    model_serial : str = Field(default = None)
+    pump_pressure_bar : int = Field(default = None)
+    pump_type : Optional[str] = Field(default = None)
+    water_temp_control : Optional[str] = Field(default = None)
+    pid_control : PidTypes = Field(default = "")
+    boiler_type : Optional[str] = Field(default = None)
+    portafilter_diam_mm : int = Field(default = None)
+
+class Grinders(SQLModel, table = True):
+    __tablename__ = "Grinders"
+    id : Optional[int] = Field(default = None, primary_key = True)
+    manufacturer : str = Field(default = None)
+    model_name : str = Field(default = None)
+    model_name_add : Optional[str] = Field(default = None)
+    model_specification : Optional[str] = Field(default = None)
+    model_serial : str = Field(default = None)
+    operation_type : OperationTypes = Field(default = None)
+    burr_shape : Optional[str] = Field(default = None)
+    burr_diameter_mm : Optional[int] = Field(default = None)
+    burr_material : Optional[str] = Field(default = None)
+    min_fine_setting : Optional[int] = Field(default = None)
+    max_fine_setting : Optional[int] = Field(default = None)
+    min_coarse_setting : Optional[int] = Field(default = None)
+    max_coarse_setting : Optional[int] = Field(default = None)
+    single_dose : YesNo = Field(default = "no")
+
+class Portafilters(SQLModel, table = True):
+    __tablename__ = "Portafilters"
+    id : Optional[int] = Field(default = None, primary_key = True)
+    manufacturer : str = Field(default = None)
+    model_name : str = Field(default = None)
+    model_name_add : Optional[str] = Field(default = None)
+    model_specification : Optional[str] = Field(default = None)
+    model_serial : str = Field(default = None)
+    basket_diameter_mm : int = Field(default = None)
+    #basket_depth_mm : Optional[int] = Field(default = None)
+    pressurized : YesNo = Field(default = "no")
+    basket_shot_size : BasketSizes = Field(default = None)
+    spout : SpoutTypes = Field(default = None)
+
+class EquipmentSetup(SQLModel, table = True):
+    __tablename__ = "EquipmentSetup"
+    id : Optional[int] = Field(default = None, primary_key = True)
+    user_id : int = Field(default = 1, foreign_key = "Users.id")
+    coffee_machine_id : int = Field(default = 1, foreign_key = "EspressoMachines.id")
+    grinder_id : int = Field(default = 1, foreign_key = "Grinders.id")
+    portafilter_id : int = Field(default = 1, foreign_key = "WaterFilters.id")
+    setup_name : Optional[str] = Field(default = None)
+
+class CoffeeBeanVarieties(SQLModel, table = True):
+    __tablename__ = "CoffeeBeanVarieties"
+    id : Optional[int] = Field(default = None, primary_key = True)
+    producer : str = Field(default = None)
+    name : str = Field(default = None)
+    origin : Optional[str] = Field(default = None)
+    origin_type : OriginTypes = Field(default = None)
+    arabica_ratio : Optional[float] = Field(default = None)
+    roast_level : Optional[float] = Field(default = None)
+    intensity : Optional[float] = Field(default = None)
+    acidity : Optional[float] = Field(default = None)
+    flavor_notes : Optional[str] = Field(default = None)
+    decaffeinated : YesNo = Field(default = "no")
+
+class CoffeeBeanPurchases(SQLModel, table = True):
+    __tablename__ = "CoffeeBeanPurchases"
+    id : Optional[int] = Field(default = None, primary_key = True)
+    user_id : int = Field(default = 1, foreign_key = "Users.id")
+    variety_id : int = Field(default = 1, foreign_key = "CoffeeBeanVarieties.id")
+    purchase_date : date = Field(default_factory = date.today)
+    purchased_from : str = Field(default = None)
+    roast_date : date = Field(default = None)
+    weight_kg : float = Field(default = None)
+    price_per_kg_eur : float = Field(default = None)
 
 class EspressoExperiments(SQLModel, table = True):
     __tablename__ = "EspressoExperiments"
     id : Optional[int] = Field(default=None, primary_key=True)
     experiment_datetime : datetime = Field(default_factory = datetime.now)
+    user_id : int = Field(default = 2, foreign_key = "Users.id")
     setup_id : int = Field(default = 1, foreign_key = "EquipmentSetup.id")
     coffee_bean_purchase_id : int = Field(default = None, foreign_key = "CoffeeBeanPurchases.id")
     grind_setting : int = Field(default = None)
@@ -27,23 +118,3 @@ class EspressoExperiments(SQLModel, table = True):
     evaluation_body : Optional[int] = Field(default = None, ge = 1, le = 10)
     evaluation_crema : Optional[int] = Field(default = None, ge = 1, le = 10)
     evaluation_notes : Optional[str] = Field(default = None)
-
-class CoffeeBeanPurchases(SQLModel, table = True):
-    __tablename__ = "CoffeeBeanPurchases"
-    id : Optional[int] = Field(default = None, primary_key = True)
-    user_id : int = Field(default = 1, foreign_key = "Users.id")
-    variety_id : int = Field(default = 1, foreign_key = "CoffeeBeanVarieties.id")
-    purchase_date : date = Field(default_factory = date.today)
-    purchased_from : str = Field(default = None)
-    roast_date : date = Field(default = None)
-    weight_kg : float = Field(default = None)
-    price_per_kg_eur : float = Field(default = None)
-
-class EquipmentSetup(SQLModel, table = True):
-    __tablename__ = "EquipmentSetup"
-    id : Optional[int] = Field(default = None, primary_key = True)
-    user_id : int = Field(default = 1, foreign_key = "Users.id")
-    coffee_machine_id : int = Field(default = 1, foreign_key = "EspressoMachines.id")
-    grinder_id : int = Field(default = 1, foreign_key = "Grinders.id")
-    portafilter_id : int = Field(default = 1, foreign_key = "WaterFilters.id")
-    setup_name : Optional[str] = Field(default = None)
