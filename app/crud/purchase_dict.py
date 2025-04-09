@@ -2,7 +2,7 @@ from ..dependencies.db_session import db_engine
 from sqlmodel import Session, text
 from datetime import date, timedelta
 
-def get_purchase_dict(time_frame : int = 30, max_items : int = 10):
+def get_purchase_dict(time_frame : int = 30, max_items : int = 10) -> dict:
 
     date_threshold = date.today() - timedelta(days = time_frame)
     date_threshold = date_threshold.strftime("%Y-%m-%d")
