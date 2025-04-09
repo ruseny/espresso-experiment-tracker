@@ -6,6 +6,7 @@ def get_purchase_dict(time_frame : int = 30, max_items : int = 10) -> dict:
 
     date_threshold = date.today() - timedelta(days = time_frame)
     date_threshold = date_threshold.strftime("%Y-%m-%d")
+
     query = text(f"""
         SELECT p.id AS id, CONCAT(
             v.producer, ' ', v.name, 
@@ -26,3 +27,14 @@ def get_purchase_dict(time_frame : int = 30, max_items : int = 10) -> dict:
     
     return {row.id: row.product for row in result}
 
+def get_user_dict() -> dict:
+
+    query = text("""
+        SELECT id, username
+        FROM Users
+    """)
+
+    with Session(db_engine) as session:
+        result = session.exec(query)
+        
+    return {row.id: row.username for row in result}
