@@ -4,14 +4,15 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import select
 from typing import Annotated
 
-from .dependecies.db_session import SessionDep
+from .dependencies.db_session import SessionDep
 from .data_models.db_models import EspressoExperiments
+from .crud.purchase_dict import get_purchase_dict
 
 
 app = FastAPI()
 templates = Jinja2Templates(directory = "../templates")
 
-coffee_beans_purchase_mapper = {1 : "Lavazza", 2 : "Segafredo", 3 : "Tchibo"}
+
 
 @app.get("/", response_class = HTMLResponse)
 async def display_home_page(request: Request):
@@ -32,11 +33,12 @@ async def display_experiment_page(request : Request, session : SessionDep):
 
 @app.get("/new_experiment", response_class = HTMLResponse)
 async def new_experiment_page(request : Request):
+    purchase_dict = get_purchase_dict()
     return templates.TemplateResponse(
         request = request, 
         name = "new_experiment.html",
         context = {
-            "coffee_beans_purchase_mapper" : coffee_beans_purchase_mapper
+            "purchase_dict" : purchase_dict
         }
     )
 
