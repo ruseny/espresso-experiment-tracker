@@ -18,7 +18,7 @@ class Users(SQLModel, table = True):
     user_type : UserTypes = Field(default = "developer")
 
 class CoffeeMachines(SQLModel, table = True):
-    __tablename__ = "EspressoMachines"
+    __tablename__ = "CoffeeMachines"
     id : Optional[int] = Field(default = None, primary_key = True)
     manufacturer : str = Field(default = None)
     model_name : str = Field(default = None)
@@ -59,7 +59,6 @@ class Portafilters(SQLModel, table = True):
     model_specification : Optional[str] = Field(default = None)
     model_serial : str = Field(default = None)
     basket_diameter_mm : int = Field(default = None)
-    #basket_depth_mm : Optional[int] = Field(default = None)
     pressurized : YesNo = Field(default = "no")
     basket_shot_size : BasketSizes = Field(default = None)
     spout : SpoutTypes = Field(default = None)
@@ -68,10 +67,22 @@ class EquipmentSetup(SQLModel, table = True):
     __tablename__ = "EquipmentSetup"
     id : Optional[int] = Field(default = None, primary_key = True)
     user_id : int = Field(default = 1, foreign_key = "Users.id")
-    coffee_machine_id : int = Field(default = 1, foreign_key = "EspressoMachines.id")
+    coffee_machine_id : int = Field(default = 1, foreign_key = "CoffeeMachines.id")
     grinder_id : int = Field(default = 1, foreign_key = "Grinders.id")
-    portafilter_id : int = Field(default = 1, foreign_key = "WaterFilters.id")
+    portafilter_id : int = Field(default = 1, foreign_key = "Portafilters.id")
+    wdt_used : YesNo = Field(default = "no")
+    tamping_method : OperationTypes = Field(default = "manual")
+    tamping_weight_kg : Optional[float] = Field(default = None)
+    leveler_used : YesNo = Field(default = "no")   
+    puck_screen_used : YesNo = Field(default = "no")
+    puck_screen_thickness_mm : Optional[float] = Field(default = None)
     setup_name : Optional[str] = Field(default = None)
+
+class UserSettings(SQLModel, table = True):
+    __tablename__ = "UserSettings"
+    id : Optional[int] = Field(default = None, primary_key = True)
+    user_id : int = Field(default = 1, foreign_key = "Users.id")
+    default_setup_id : int = Field(default = 1, foreign_key = "EquipmentSetup.id")
 
 class CoffeeBeanVarieties(SQLModel, table = True):
     __tablename__ = "CoffeeBeanVarieties"
@@ -101,17 +112,22 @@ class CoffeeBeanPurchases(SQLModel, table = True):
 class EspressoExperiments(SQLModel, table = True):
     __tablename__ = "EspressoExperiments"
     id : Optional[int] = Field(default=None, primary_key=True)
-    experiment_datetime : datetime = Field(default_factory = datetime.now)
     user_id : int = Field(default = 2, foreign_key = "Users.id")
-    setup_id : int = Field(default = 1, foreign_key = "EquipmentSetup.id")
+    experiment_datetime : datetime = Field(default_factory = datetime.now)
+    coffee_machine_id : int = Field(default = 1, foreign_key = "CoffeeMachines.id")
+    grinder_id : int = Field(default = 1, foreign_key = "Grinders.id")
+    portafilter_id : int = Field(default = 1, foreign_key = "Portafilters.id")
+    wdt_used : YesNo = Field(default = "no")
+    tamping_method : OperationTypes = Field(default = "manual")
+    tamping_weight_kg : Optional[float] = Field(default = None)
+    leveler_used : YesNo = Field(default = "no")   
+    puck_screen_used : YesNo = Field(default = "no")
+    puck_screen_thickness_mm : Optional[float] = Field(default = None)
     coffee_bean_purchase_id : int = Field(default = None, foreign_key = "CoffeeBeanPurchases.id")
     grind_setting : int = Field(default = None)
     dose_gr : float = Field(default = None)
-    wdt_used : YesNo = Field(default = "yes")
-    leveler_used : YesNo = Field(default = "no")
-    puck_screen_used : YesNo = Field(default = "yes")
-    extraction_time_sec : int = Field(default = None)
     water_temp_c : Optional[int] = Field(default = 93)
+    extraction_time_sec : int = Field(default = None)
     yield_gr : float = Field(default = None)
     evaluation_general : Optional[int] = Field(default = None, ge = 1, le = 10)
     evaluation_flavor : Optional[int] = Field(default = None, ge = 1, le = 10)

@@ -64,7 +64,6 @@ CREATE TABLE IF NOT EXISTS Portafilters (
     model_specification VARCHAR(255),
     model_serial VARCHAR(255) NOT NULL,
     basket_diameter_mm SMALLINT NOT NULL,
-    -- basket_depth_mm SMALLINT,
     pressurized ENUM('yes', 'no') NOT NULL,
     basket_shot_size ENUM('single', 'double', 'triple', 'quadruple') NOT NULL,
     spout ENUM('single', 'double', 'bottomless') NOT NULL,
@@ -76,7 +75,13 @@ CREATE TABLE IF NOT EXISTS EquipmentSetup (
     user_id INT NOT NULL,
     coffee_machine_id INT NOT NULL,
     grinder_id INT NOT NULL,
-    portafilter_id INT,
+    portafilter_id INT NOT NULL,
+    wdt_used ENUM('yes', 'no') NOT NULL,
+    tamping_method ENUM('manual', 'electric') NOT NULL,
+    tamping_weight_kg SMALLINT,
+    leveler_used ENUM('yes', 'no') NOT NULL,
+    puck_screen_used ENUM('yes', 'no') NOT NULL,
+    puck_screen_thickness_mm DECIMAL(5, 2),
     setup_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (coffee_machine_id) REFERENCES CoffeeMachines(id)
@@ -89,6 +94,19 @@ CREATE TABLE IF NOT EXISTS EquipmentSetup (
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS UserSettings (
+    id INT AUTO_INCREMENT NOT NULL, 
+    user_id INT NOT NULL,
+    default_setup_id INT NOT NULL DEFAULT 1,
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES Users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (default_setup_id) REFERENCES EquipmentSetup(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
@@ -128,20 +146,22 @@ CREATE TABLE IF NOT EXISTS CoffeeBeanPurchases (
 
 CREATE TABLE IF NOT EXISTS EspressoExperiments (
     id INT AUTO_INCREMENT NOT NULL, 
-    experiment_datetime DATETIME NOT NULL,
     user_id INT NOT NULL DEFAULT 2,
-    setup_id INT NOT NULL,
+    experiment_datetime DATETIME NOT NULL,
+    coffee_machine_id INT NOT NULL,
+    grinder_id INT NOT NULL,
+    portafilter_id INT NOT NULL,
+    wdt_used ENUM('yes', 'no') NOT NULL,
+    tamping_method ENUM('manual', 'electric') NOT NULL,
+    tamping_weight_kg SMALLINT,
+    leveler_used ENUM('yes', 'no') NOT NULL,
+    puck_screen_used ENUM('yes', 'no') NOT NULL,
+    puck_screen_thickness_mm DECIMAL(5, 2),
     coffee_bean_purchase_id INT NOT NULL,
     grind_setting SMALLINT NOT NULL,
     dose_gr DECIMAL(5,2) NOT NULL,
-    wdt_used ENUM('yes', 'no') NOT NULL,
-    -- tamping_method ENUM('manual', 'machine') NOT NULL,
-    -- tamping_pressure_kg SMALLINT,
-    leveler_used ENUM('yes', 'no') NOT NULL,
-    puck_screen_used ENUM('yes', 'no') NOT NULL,
-    -- puck_screen_type VARCHAR(255),
-    extraction_time_sec SMALLINT NOT NULL,
     water_temp_c SMALLINT DEFAULT 93, 
+    extraction_time_sec SMALLINT NOT NULL,
     yield_gr DECIMAL(5,2) NOT NULL,
     evaluation_general SMALLINT,
     evaluation_flavor SMALLINT,
@@ -152,7 +172,13 @@ CREATE TABLE IF NOT EXISTS EspressoExperiments (
     FOREIGN KEY (user_id) REFERENCES Users(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    FOREIGN KEY (setup_id) REFERENCES EquipmentSetup(id)
+    FOREIGN KEY (coffee_machine_id) REFERENCES CoffeeMachines(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (grinder_id) REFERENCES Grinders(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (portafilter_id) REFERENCES Portafilters(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (coffee_bean_purchase_id) REFERENCES CoffeeBeanPurchases(id)

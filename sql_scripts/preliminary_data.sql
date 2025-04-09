@@ -241,6 +241,11 @@ INSERT INTO EquipmentSetup (
     coffee_machine_id,
     grinder_id,
     portafilter_id, 
+    wdt_used,
+    tamping_method,
+    leveler_used,
+    puck_screen_used,
+    puck_screen_thickness_mm,
     setup_name
 )
 VALUES
@@ -249,6 +254,11 @@ VALUES
         1, 
         1, 
         4, 
+        "yes",
+        "manual",
+        "no",
+        "yes", 
+        1.7,
         'Dedica, Baratza, bottomless#1 double'
     ), 
     (
@@ -256,6 +266,11 @@ VALUES
         1, 
         1, 
         5, 
+        "yes",
+        "manual",
+        "no",
+        "yes", 
+        1.7,
         'Dedica, Baratza, botomless#2, double'
     ), 
     (
@@ -263,6 +278,11 @@ VALUES
         2, 
         2, 
         7, 
+        "yes",
+        "manual",
+        "no",
+        "no", 
+        NULL,
         'Sage Barista default, double'
     ), 
     (
@@ -270,7 +290,26 @@ VALUES
         3, 
         2, 
         8, 
+        "yes",
+        "manual",
+        "yes",
+        "no", 
+        NULL,
         'Sage Oracle default, double'
+    );
+
+INSERT INTO UserSettings (
+    user_id, 
+    default_setup_id
+)
+VALUES
+    (
+        1, 
+        1
+    ), 
+    (
+        2, 
+        2
     );
 
 INSERT INTO CoffeeBeanVarieties (
@@ -421,13 +460,17 @@ VALUES
 INSERT INTO EspressoExperiments (
     experiment_datetime,
     user_id,
-    setup_id,
+    coffee_machine_id,
+    grinder_id,
+    portafilter_id,
+    wdt_used,
+    tamping_method,
+    leveler_used,
+    puck_screen_used,
+    puck_screen_thickness_mm,
     coffee_bean_purchase_id,
     grind_setting,
     dose_gr,
-    wdt_used,
-    leveler_used,
-    puck_screen_used,
     extraction_time_sec, 
     yield_gr,
     evaluation_general,
@@ -442,11 +485,15 @@ VALUES
         1,
         1, 
         1, 
+        5, 
+        "yes",
+        "manual",
+        "no",
+        "yes", 
+        1.7,
+        1, 
         12, 
         18.0,
-        'yes',
-        'no',
-        'yes', 
         27,
         30.0,
         8,
