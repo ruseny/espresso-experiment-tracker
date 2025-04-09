@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, Field
 from typing import Optional
 from datetime import date, datetime
 
-from enum_defs import UserTypes, PidTypes, OperationTypes, YesNo, BasketSizes, SpoutTypes, OriginTypes
+from .enum_defs import UserTypes, PidTypes, OperationTypes, YesNo, BasketSizes, SpoutTypes, OriginTypes
 
 
 class Users(SQLModel, table = True):
