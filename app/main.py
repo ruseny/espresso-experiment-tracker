@@ -61,7 +61,9 @@ async def new_experiment_page(request : Request):
         context = {
             "current_user" : user_name, 
             "purchase_dict" : purchase_dict,
-            "setup_dict" : setup_dict
+            "setup_dict" : setup_dict, 
+            "water_temp_c" : 93, 
+            "leveler_used" : "no"
         }
     )
 
