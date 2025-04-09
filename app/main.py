@@ -12,7 +12,7 @@ from typing import Annotated
 # Local module imports:
 from .dependencies.db_session import SessionDep
 from .data_models.db_models import EspressoExperiments
-from .crud.selection_dicts import get_purchase_dict, get_user_dict
+from .crud.selection_dicts import get_purchase_dict, get_user_dict, get_setup_dict
 
 # Initialise app and frontend
 app = FastAPI()
@@ -50,16 +50,18 @@ async def display_experiment_page(request : Request, session : SessionDep):
 
 @app.get("/new_experiment", response_class = HTMLResponse)
 async def new_experiment_page(request : Request):
-    purchase_dict = get_purchase_dict()
     if app.state.current_user == 0:
         return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
     user_name = user_dict[app.state.current_user]
+    purchase_dict = get_purchase_dict(user_id = app.state.current_user)
+    setup_dict = get_setup_dict(user_id = app.state.current_user)
     return templates.TemplateResponse(
         request = request, 
         name = "new_experiment.html",
         context = {
+            "current_user" : user_name, 
             "purchase_dict" : purchase_dict,
-            "current_user" : user_name
+            "setup_dict" : setup_dict
         }
     )
 

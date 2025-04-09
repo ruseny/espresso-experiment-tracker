@@ -5,7 +5,11 @@
     <h2>Fill in the following form</h2>
     Current user : {{ current_user}} <br>
     <form method="POST" action="#" id="new_exp_form">
-        Equipment setup, enter id : <input type="text" name="setup_id" value={{setup_id}}> <br>
+        Equipment setup : <select name="setup_id">
+            {% for id in setup_dict %}
+                <option value="{{ id }}">{{ setup_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
         Coffee beans : <select name="coffee_bean_purchase_id">
             {% for id in purchase_dict %}
                 <option value="{{ id }}">{{ purchase_dict[id] }}</option>
