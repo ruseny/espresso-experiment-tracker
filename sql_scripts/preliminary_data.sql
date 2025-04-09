@@ -347,16 +347,80 @@ INSERT INTO CoffeeBeanPurchases (
 VALUES
     (
         1, 
+        1,
+        '2025-03-22', 
+        'roastmarket.de', 
+        '2024-12-15', 
+        0.25, 
+        33.99
+    ), 
+    (
+        1,
+        2,
+        '2025-03-22',
+        'roastmarket.de',
+        '2025-11-30', 
+        0.25, 
+        37.99
+    ), 
+    (
+        1, 
         3, 
         '2025-04-01', 
         'origeens.com', 
         NULL,
         0.5, 
         28.77
+    ), 
+    (
+        1,
+        4, 
+        '2025-03-15', 
+        'edeka', 
+        NULL, 
+        1.0, 
+        16.99
+    ), 
+    (
+        1, 
+        2, 
+        '2025-01-10', 
+        'roastmarket.de', 
+        '2024-08-20', 
+        0.25, 
+        37.99
+    ), 
+    (
+        2, 
+        1,
+        '2025-03-22', 
+        'roastmarket.de', 
+        '2024-12-15', 
+        0.25, 
+        33.99
+    ), 
+    (
+        2, 
+        2, 
+        '2025-01-10', 
+        'roastmarket.de', 
+        '2024-08-20', 
+        0.25, 
+        37.99
+    ), 
+    (
+        2,
+        4, 
+        '2025-03-15', 
+        'edeka', 
+        NULL, 
+        1.0, 
+        16.99
     );
 
 INSERT INTO EspressoExperiments (
     experiment_datetime,
+    user_id,
     setup_id,
     coffee_bean_purchase_id,
     grind_setting,
@@ -375,6 +439,7 @@ INSERT INTO EspressoExperiments (
 VALUES
     (
         '2025-04-03 10:00:00', 
+        1,
         1, 
         1, 
         12, 

@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS EquipmentSetup (
     coffee_machine_id INT NOT NULL,
     grinder_id INT NOT NULL,
     portafilter_id INT,
-    setup_name VARCHAR(255),
+    setup_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (coffee_machine_id) REFERENCES CoffeeMachines(id)
         ON DELETE CASCADE
@@ -129,6 +129,7 @@ CREATE TABLE IF NOT EXISTS CoffeeBeanPurchases (
 CREATE TABLE IF NOT EXISTS EspressoExperiments (
     id INT AUTO_INCREMENT NOT NULL, 
     experiment_datetime DATETIME NOT NULL,
+    user_id INT NOT NULL DEFAULT 2,
     setup_id INT NOT NULL,
     coffee_bean_purchase_id INT NOT NULL,
     grind_setting SMALLINT NOT NULL,
@@ -148,6 +149,9 @@ CREATE TABLE IF NOT EXISTS EspressoExperiments (
     evaluation_crema SMALLINT,
     evaluation_notes VARCHAR(255),
     PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES Users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
     FOREIGN KEY (setup_id) REFERENCES EquipmentSetup(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
