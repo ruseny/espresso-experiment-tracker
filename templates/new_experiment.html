@@ -3,13 +3,41 @@
 {% block content %}
     <h1>{% block title %} New experiment {% endblock %}</h1>
     <h2>Fill in the following form</h2>
-    Current user : {{ current_user}} <br>
     <form method="POST" action="#" id="new_exp_form">
-        Equipment setup : <select name="setup_id">
-            {% for id in setup_dict %}
-                <option value="{{ id }}">{{ setup_dict[id] }}</option>
+        Current user : {{ current_user }} <input type="hidden" id="user_id" name="user_id" value={{user_id}}> <br>
+        Coffee machine : <select name="coffee_machine_id">
+            {% for id in machine_dict %}
+                <option value="{{ id }}">{{ machine_dict[id] }}</option>
             {% endfor %}
         </select> <br>
+        Grinder : <select name="grinder_id">
+            {% for id in grinder_dict %}
+                <option value="{{ id }}">{{ grinder_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
+        Portafilter : <select name="portafilter_id">
+            {% for id in portafilter_dict %}
+                <option value="{{ id }}">{{ portafilter_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
+        WDT used ? <select name="wdt_used">
+            <option value="yes">yes</option>
+            <option value="no">no</option> 
+        </select> <br>
+        Tamping method : <select name="tamping_method">
+            <option value="manual">manual</option>
+            <option value="automatic">automatic</option>
+        </select>
+        Tamping force (kg) : <input type="text" name="tamping_force_kg" value={{tamping_force_kg}}> <br>
+        Leveler used ? <select name="leveler_used">
+            <option value="yes">yes</option>
+            <option value="no">no</option> 
+        </select> <br>
+        Puck screen used ? <select name="puck_screen_used">
+            <option value="yes">yes</option>
+            <option value="no">no</option> 
+        </select>
+        Puck screen thickness (mm) : <input type="text" name="puck_screen_thickness_mm" value={{puck_screen_thickness_mm}}> <br>
         Coffee beans : <select name="coffee_bean_purchase_id">
             {% for id in purchase_dict %}
                 <option value="{{ id }}">{{ purchase_dict[id] }}</option>
@@ -17,20 +45,8 @@
         </select> <br>
         Grind level : <input type="text" name="grind_setting" value={{grind_setting}}> <br>
         Amount (grams) : <input type="text" name="dose_gr" value={{dose_gr}}> <br>
-        WDT used ? <select name="wdt_used">
-            <option value="yes">yes</option>
-            <option value="no">no</option> 
-        </select>
-        Leveler used ? <select name="leveler_used">
-            <option value="yes">yes</option>
-            <option value="no" {{ 'selected' if leveler_used=="no" }}>no</option> 
-        </select>
-        Puck screen used ? <select name="puck_screen_used">
-            <option value="yes">yes</option>
-            <option value="no">no</option> 
-        </select> <br>
-        Extraction time (sec) : <input type="text" name="extraction_time_sec" value={{extraction_time_sec}}> <br>
         Water temperature (C) : <input type="text" name="water_temp_c" value="{{water_temp_c}}"> <br>
+        Extraction time (sec) : <input type="text" name="extraction_time_sec" value={{extraction_time_sec}}> <br>
         Output (gr) : <input type="text" name="yield_gr" value={{yield_gr}}> <br>
         <input type="submit" value="Submit">
     </form>

@@ -117,11 +117,11 @@ class CoffeeBeanPurchases(SQLModel, table = True):
 class EspressoExperiments(SQLModel, table = True):
     __tablename__ = "EspressoExperiments"
     id : Optional[int] = Field(default=None, primary_key=True)
-    user_id : int = Field(default = 2, foreign_key = "Users.id")
+    user_id : int = Field(default = None, foreign_key = "Users.id")
     experiment_datetime : datetime = Field(default_factory = datetime.now)
-    coffee_machine_id : int = Field(default = 1, foreign_key = "CoffeeMachines.id")
-    grinder_id : int = Field(default = 1, foreign_key = "Grinders.id")
-    portafilter_id : int = Field(default = 1, foreign_key = "Portafilters.id")
+    coffee_machine_id : int = Field(default = None, foreign_key = "CoffeeMachines.id")
+    grinder_id : int = Field(default = None, foreign_key = "Grinders.id")
+    portafilter_id : int = Field(default = None, foreign_key = "Portafilters.id")
     wdt_used : YesNo = Field(default = "no")
     tamping_method : OperationTypes = Field(default = "manual")
     tamping_weight_kg : Optional[float] = Field(default = None)

@@ -12,7 +12,10 @@ from typing import Annotated
 # Local module imports:
 from .dependencies.db_session import SessionDep
 from .data_models.db_models import EspressoExperiments
-from .crud.selection_dicts import get_purchase_dict, get_user_dict, get_setup_dict
+from .crud.selection_dicts import (
+    get_user_dict, get_coffee_machine_dict, get_grinder_dict, 
+    get_portafilter_dict, get_purchase_dict
+)
 
 # Initialise app and frontend
 app = FastAPI()
@@ -52,18 +55,23 @@ async def display_experiment_page(request : Request, session : SessionDep):
 async def new_experiment_page(request : Request):
     if app.state.current_user == 0:
         return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
-    user_name = user_dict[app.state.current_user]
-    purchase_dict = get_purchase_dict(user_id = app.state.current_user)
-    setup_dict = get_setup_dict(user_id = app.state.current_user)
+    user_id = app.state.current_user
+    user_name = user_dict[user_id]
+    machine_dict = get_coffee_machine_dict(user_id)
+    grinder_dict = get_grinder_dict(user_id)
+    portafilter_dict = get_portafilter_dict(user_id)
+    purchase_dict = get_purchase_dict(user_id)
     return templates.TemplateResponse(
         request = request, 
         name = "new_experiment.html",
         context = {
+            "user_id" : user_id,
             "current_user" : user_name, 
+            "machine_dict" : machine_dict,
+            "grinder_dict" : grinder_dict,
+            "portafilter_dict" : portafilter_dict,
             "purchase_dict" : purchase_dict,
-            "setup_dict" : setup_dict, 
-            "water_temp_c" : 93, 
-            "leveler_used" : "no"
+            "water_temp_c" : 93
         }
     )
 
