@@ -77,8 +77,8 @@ CREATE TABLE IF NOT EXISTS EquipmentOwnership (
     coffee_machine_id INT,
     grinder_id INT,
     portafilter_id INT,
-    purchase_date DATE NOT NULL,
-    purchased_from VARCHAR(255) NOT NULL,
+    purchase_date DATE,
+    purchased_from VARCHAR(255),
     purchace_price_eur DECIMAL(7,2),
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES Users(id)
