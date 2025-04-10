@@ -32,3 +32,8 @@ class SpoutTypes(str, Enum):
 class OriginTypes(str, Enum):
     single_origin = "single origin"
     blend = "blend"
+
+class EqpTypes(str, Enum):
+    coffee_machine = "coffee machine"
+    grinder = "grinder"
+    portafilter = "portafilter"

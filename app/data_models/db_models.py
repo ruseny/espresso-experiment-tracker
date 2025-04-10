@@ -2,7 +2,7 @@ from sqlmodel import SQLModel, Field
 from typing import Optional
 from datetime import date, datetime
 
-from .enum_defs import UserTypes, PidTypes, OperationTypes, YesNo, BasketSizes, SpoutTypes, OriginTypes
+from .enum_defs import UserTypes, PidTypes, OperationTypes, YesNo, BasketSizes, SpoutTypes, OriginTypes, EqpTypes
 
 
 class Users(SQLModel, table = True):
@@ -63,10 +63,21 @@ class Portafilters(SQLModel, table = True):
     basket_shot_size : BasketSizes = Field(default = None)
     spout : SpoutTypes = Field(default = None)
 
-class EquipmentSetup(SQLModel, table = True):
-    __tablename__ = "EquipmentSetup"
+class EquipmentOwnership(SQLModel, table = True):
+    __tablename__ = "EquipmentOwnership"
     id : Optional[int] = Field(default = None, primary_key = True)
-    user_id : int = Field(default = 1, foreign_key = "Users.id")
+    user_id : int = Field(default = None, foreign_key = "Users.id")
+    equipment_type : EqpTypes = Field(default = None)
+    coffee_machine_id : Optional[int] = Field(default = None, foreign_key = "CoffeeMachines.id")
+    grinder_id : Optional[int] = Field(default = None, foreign_key = "Grinders.id")
+    portafilter_id : Optional[int] = Field(default = None, foreign_key = "Portafilters.id")
+    purchase_date : Optional[date] = Field(default = None)
+    purchased_from : Optional[str] = Field(default = None)
+    purchace_price_eur : Optional[float] = Field(default = None)
+
+class UserDefaults(SQLModel, table = True):
+    __tablename__ = "UserDefaults"
+    user_id : int = Field(default = None, primary_key = True, foreign_key = "Users.id")
     coffee_machine_id : int = Field(default = 1, foreign_key = "CoffeeMachines.id")
     grinder_id : int = Field(default = 1, foreign_key = "Grinders.id")
     portafilter_id : int = Field(default = 1, foreign_key = "Portafilters.id")
@@ -77,12 +88,6 @@ class EquipmentSetup(SQLModel, table = True):
     puck_screen_used : YesNo = Field(default = "no")
     puck_screen_thickness_mm : Optional[float] = Field(default = None)
     setup_name : Optional[str] = Field(default = None)
-
-class UserSettings(SQLModel, table = True):
-    __tablename__ = "UserSettings"
-    id : Optional[int] = Field(default = None, primary_key = True)
-    user_id : int = Field(default = 1, foreign_key = "Users.id")
-    default_setup_id : int = Field(default = 1, foreign_key = "EquipmentSetup.id")
 
 class CoffeeBeanVarieties(SQLModel, table = True):
     __tablename__ = "CoffeeBeanVarieties"
