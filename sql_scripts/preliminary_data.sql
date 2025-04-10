@@ -1,4 +1,5 @@
 INSERT INTO Users (
+    id,
     username, 
     first_name,
     last_name,
@@ -8,6 +9,7 @@ INSERT INTO Users (
 )
 VALUES
     (
+        1,
         'rusen', 
         'Rusen',
         'Yasar', 
@@ -16,7 +18,8 @@ VALUES
         'home barista'
     ), 
     (
-        'app',
+        2,
+        'dev',
         '',
         '',
         NULL,
@@ -25,6 +28,7 @@ VALUES
     );
 
 INSERT INTO CoffeeMachines (
+    id,
     manufacturer, 
     model_name,
     model_name_add,
@@ -39,6 +43,7 @@ INSERT INTO CoffeeMachines (
 )
 VALUES
     (
+        1,
         'DeLonghi', 
         'Dedica', 
         '', 
@@ -52,6 +57,7 @@ VALUES
         51
     ), 
     (
+        2,
         'Sage/Breville',
         'Barista',
         'Pro', 
@@ -65,6 +71,7 @@ VALUES
         54
     ), 
     (
+        3,
         'Sage/Breville',
         'Oracle',
         'Touch',
@@ -79,6 +86,7 @@ VALUES
     );
 
 INSERT INTO Grinders (
+    id,
     manufacturer, 
     model_name,
     model_name_add,
@@ -96,6 +104,7 @@ INSERT INTO Grinders (
 )
 VALUES
     (
+        1,
         'Baratza', 
         'Encore', 
         'ESP', 
@@ -112,6 +121,7 @@ VALUES
         'no'
     ),
     (
+        2,
         'Sage/Breville',
         'The Smart Grinder',
         'Pro',
@@ -128,6 +138,7 @@ VALUES
         'no'
     ), 
     (
+        3,
         'Hario', 
         'Skerton', 
         'Plus',
@@ -145,6 +156,7 @@ VALUES
     );
 
 INSERT INTO Portafilters (
+    id,
     manufacturer, 
     model_name,
     model_specification,
@@ -156,6 +168,7 @@ INSERT INTO Portafilters (
 )
 VALUES
     (
+        1,
         'DeLonghi',
         'Dedica',
         'Portafilter',
@@ -166,6 +179,7 @@ VALUES
         'double'
     ), 
     (
+        2,
         'DeLonghi',
         'Dedica',
         'Portafilter',
@@ -176,6 +190,7 @@ VALUES
         'double'
     ), 
     (
+        3,
         'Neouza',
         'Portafilter 51mm',
         'extra part',
@@ -186,6 +201,7 @@ VALUES
         'bottomless'
     ), 
     (
+        4,
         'Neouza',
         'Portafilter 51mm',
         'default part',
@@ -195,7 +211,8 @@ VALUES
         'double',
         'bottomless'
     ), 
-        (
+    (
+        5,
         'Neouza',
         'Portafilter 51mm',
         'extra part',
@@ -206,6 +223,7 @@ VALUES
         'bottomless'
     ), 
     (
+        6,
         'Neouza',
         'Portafilter 51mm',
         'extra part',
@@ -216,6 +234,7 @@ VALUES
         'bottomless'
     ), 
     (
+        7,
         'Sage/Breville',
         'Barista',
         'Portafilter',
@@ -226,6 +245,7 @@ VALUES
         'double'
     ), 
     (
+        8,
         'Sage/Breville',
         'Oracle',
         'Portafilter',
@@ -236,11 +256,133 @@ VALUES
         'double'
     );
 
-INSERT INTO EquipmentSetup (
+INSERT INTO EquipmentOwnership (
     user_id, 
+    equipment_type,
     coffee_machine_id,
     grinder_id,
     portafilter_id, 
+    purchase_date, 
+    purchased_from, 
+    purchace_price_eur
+)
+VALUES
+    (
+        1, 
+        'coffee machine',
+        1, 
+        NULL,
+        NULL,
+        '2018-03-03', 
+        'amazon.de', 
+        129.99
+    ), 
+    (
+        1, 
+        'grinder',
+        NULL,
+        1,
+        NULL,
+        '2024-10-15', 
+        'amazon.de', 
+        159.99
+    ), 
+    (
+        1, 
+        'portafilter',
+        NULL,
+        NULL,
+        1,
+        '2018-03-03', 
+        'amazon.de', 
+        0.0
+    ), 
+    (
+        1, 
+        'portafilter',
+        NULL,
+        NULL,
+        2,
+        '2018-03-03', 
+        'amazon.de', 
+        0.0
+    ), 
+    (
+        1, 
+        'portafilter',
+        NULL,
+        NULL,
+        3,
+        '2024-10-05', 
+        'amazon.de', 
+        NULL
+    ),
+    (
+        1, 
+        'portafilter',
+        NULL,
+        NULL,
+        4,
+        '2024-10-05', 
+        'amazon.de', 
+        NULL
+    ),
+    (
+        1, 
+        'portafilter',
+        NULL,
+        NULL,
+        5,
+        '2024-10-05', 
+        'amazon.de', 
+        NULL
+    ),
+        (
+        1, 
+        'portafilter',
+        NULL,
+        NULL,
+        6,
+        '2024-10-05', 
+        'amazon.de', 
+        NULL
+    ),
+    (
+        2, 
+        'coffee machine',
+        2,
+        NULL,
+        NULL,
+        '2025-03-01', 
+        'amazon.de', 
+        799.99
+    ), 
+    (
+        2, 
+        'grinder',
+        NULL,
+        2,
+        NULL,
+        '2025-03-01', 
+        'amazon.de', 
+        199.99
+    ), 
+    (
+        2, 
+        'portafilter',
+        NULL,
+        NULL,
+        7,
+        '2025-03-01', 
+        'amazon.de', 
+        0.0
+    );
+
+INSERT INTO UserDefaults (
+    user_id, 
+    coffee_machine_id,
+    grinder_id,
+    portafilter_id,
     wdt_used,
     tamping_method,
     leveler_used,
@@ -251,65 +393,27 @@ INSERT INTO EquipmentSetup (
 VALUES
     (
         1, 
-        1, 
-        1, 
-        4, 
-        "yes",
-        "manual",
-        "no",
-        "yes", 
+        1,
+        1,
+        5,
+        'yes',
+        'manual',
+        'no',
+        'yes',
         1.7,
-        'Dedica, Baratza, bottomless#1 double'
-    ), 
-    (
-        1, 
-        1, 
-        1, 
-        5, 
-        "yes",
-        "manual",
-        "no",
-        "yes", 
-        1.7,
-        'Dedica, Baratza, botomless#2, double'
+        'Dedica-Baratza-Neouza'
     ), 
     (
         2, 
-        2, 
-        2, 
-        7, 
-        "yes",
-        "manual",
-        "no",
-        "no", 
+        2,
+        2,
+        7,
+        'yes', 
+        'manual',
+        'yes',
+        'no',
         NULL,
-        'Sage Barista default, double'
-    ), 
-    (
-        2, 
-        3, 
-        2, 
-        8, 
-        "yes",
-        "manual",
-        "yes",
-        "no", 
-        NULL,
-        'Sage Oracle default, double'
-    );
-
-INSERT INTO UserSettings (
-    user_id, 
-    default_setup_id
-)
-VALUES
-    (
-        1, 
-        1
-    ), 
-    (
-        2, 
-        2
+        'BaristaPro-SmartGrinder'
     );
 
 INSERT INTO CoffeeBeanVarieties (

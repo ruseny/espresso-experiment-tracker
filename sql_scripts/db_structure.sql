@@ -70,8 +70,32 @@ CREATE TABLE IF NOT EXISTS Portafilters (
     PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS EquipmentSetup (
-    id INT AUTO_INCREMENT NOT NULL, 
+CREATE TABLE IF NOT EXISTS EquipmentOwnership (
+    id INT AUTO_INCREMENT NOT NULL,
+    user_id INT NOT NULL, 
+    equipment_type ENUM('coffee machine', 'grinder', 'portafilter') NOT NULL,
+    coffee_machine_id INT,
+    grinder_id INT,
+    portafilter_id INT,
+    purchase_date DATE NOT NULL,
+    purchased_from VARCHAR(255) NOT NULL,
+    purchace_price_eur DECIMAL(7,2),
+    PRIMARY KEY (id),
+    FOREIGN KEY (user_id) REFERENCES Users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (coffee_machine_id) REFERENCES CoffeeMachines(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (grinder_id) REFERENCES Grinders(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (portafilter_id) REFERENCES Portafilters(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS UserDefaults (
     user_id INT NOT NULL,
     coffee_machine_id INT NOT NULL,
     grinder_id INT NOT NULL,
@@ -83,7 +107,7 @@ CREATE TABLE IF NOT EXISTS EquipmentSetup (
     puck_screen_used ENUM('yes', 'no') NOT NULL,
     puck_screen_thickness_mm DECIMAL(5, 2),
     setup_name VARCHAR(255) NOT NULL,
-    PRIMARY KEY (id),
+    PRIMARY KEY (user_id),
     FOREIGN KEY (coffee_machine_id) REFERENCES CoffeeMachines(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
@@ -94,19 +118,6 @@ CREATE TABLE IF NOT EXISTS EquipmentSetup (
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS UserSettings (
-    id INT AUTO_INCREMENT NOT NULL, 
-    user_id INT NOT NULL,
-    default_setup_id INT NOT NULL DEFAULT 1,
-    PRIMARY KEY (id),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE,
-    FOREIGN KEY (default_setup_id) REFERENCES EquipmentSetup(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
