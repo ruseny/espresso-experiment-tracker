@@ -11,7 +11,7 @@ from typing import Annotated
 
 # Local module imports:
 from .dependencies.db_session import SessionDep
-from .data_models.db_models import EspressoExperiments
+from .data_models.db_models import EspressoExperiments, CoffeeMachines
 from .crud.selection_dicts import (
     get_user_dict, get_coffee_machine_dict, get_grinder_dict, 
     get_portafilter_dict, get_purchase_dict
@@ -104,3 +104,27 @@ async def enter_new_experiment(
     session.commit()
     session.refresh(form_data)
     return RedirectResponse(url = "/show_experiment", status_code=status.HTTP_302_FOUND)
+
+@app.get("/new_coffee_machine", response_class = HTMLResponse)
+async def new_coffee_machine_page(request : Request):
+    if app.state.current_user == 0:
+        return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
+    return templates.TemplateResponse(
+        request = request, 
+        name = "new_coffee_machine.html"
+    )
+
+@app.post("/new_coffee_machine", response_class = HTMLResponse)
+async def enter_new_coffee_machine(
+        form_data : Annotated[CoffeeMachines, Form()],
+        session : SessionDep, 
+        request : Request
+):
+    session.add(form_data)
+    session.commit()
+    session.refresh(form_data)
+    return templates.TemplateResponse(
+        request = request, 
+        name = "new_coffee_machine.html", 
+        context = form_data.model_dump(mode = "json")
+    )

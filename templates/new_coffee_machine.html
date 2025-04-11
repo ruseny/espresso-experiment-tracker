@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} New coffee machine {% endblock %}</h1>
+    <h2>Fill in the following form</h2>
+    <form method="POST" action="#" id="new_cm_form">
+        Manufacturer : <input type="text" name="manufacturer" value={{manufacturer}}> <br>
+        Model name : <input type="text" name="model_name" value={{model_name}}> <br>
+        Sub-model name : <input type="text" name="model_name_add" value={{model_name_add}}> <br>
+        Specifications : <input type="text" name="model_specification" value={{model_specification}}> <br>
+        Serial number : <input type="text" name="model_serial" value={{model_serial}}> <br>
+        Pump pressure (bar) : <input type="text" name="pump_pressure_bar" value={{pump_pressure_bar}}> <br>
+        Pump type : <input type="text" name="pump_type" value={{pump_type}}> <br>
+        Water temperature control : <input type="text" name="water_temp_control" value={{water_temp_control}}> <br>
+        PID control : <select name="pid_control">
+            <option value="" selected>None</option>
+            <option value="automatic">Automatic</option>
+            <option value="programmable">Programmable</option>
+        </select> <br>
+        Boiler type : <input type="text" name="boiler_type" value={{boiler_type}}> <br>
+        Portafilter diameter (mm) : <input type="text" name="portafilter_diam_mm" value={{portafilter_diam_mm}}> <br>
+        <input type="submit" value="Submit">
+    </form>
+    <h2>Machine details has been entered as follows:</h2>
+    Manufacturer : {{manufacturer}} <br>
+    Model name : {{model_name}} <br>
+    Sub-model name : {{model_name_add}} <br>
+    Specifications : {{model_specification}} <br>
+    Serial number : {{model_serial}} <br>
+    Pump pressure (bar) : {{pump_pressure_bar}} <br>
+    Pump type : {{pump_type}} <br>
+    Water temperature control : {{water_temp_control}} <br>
+    PID control : {{pid_control}} <br>
+    Boiler type : {{boiler_type}} <br>
+    Portafilter diameter (mm) : {{portafilter_diam_mm}} <br>
+{% endblock %}
