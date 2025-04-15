@@ -11,7 +11,7 @@ from typing import Annotated
 
 # Local module imports:
 from .dependencies.db_session import SessionDep
-from .data_models.db_models import EspressoExperiments, CoffeeMachines
+from .data_models.db_models import *
 from .crud.selection_dicts import (
     get_user_dict, get_coffee_machine_dict, get_grinder_dict, 
     get_portafilter_dict, get_purchase_dict
@@ -126,5 +126,53 @@ async def enter_new_coffee_machine(
     return templates.TemplateResponse(
         request = request, 
         name = "new_coffee_machine.html", 
+        context = form_data.model_dump(mode = "json")
+    )
+
+@app.get("/new_grinder", response_class = HTMLResponse)
+async def new_grinder_page(request : Request):
+    if app.state.current_user == 0:
+        return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
+    return templates.TemplateResponse(
+        request = request, 
+        name = "new_grinder.html"
+    )
+
+@app.post("/new_grinder", response_class = HTMLResponse)
+async def enter_new_grinder(
+        form_data : Annotated[Grinders, Form()],
+        session : SessionDep, 
+        request : Request
+):
+    session.add(form_data)
+    session.commit()
+    session.refresh(form_data)
+    return templates.TemplateResponse(
+        request = request, 
+        name = "new_grinder.html", 
+        context = form_data.model_dump(mode = "json")
+    )
+
+@app.get("/new_portafilter", response_class = HTMLResponse)
+async def new_portafilter_page(request : Request):
+    if app.state.current_user == 0:
+        return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
+    return templates.TemplateResponse(
+        request = request, 
+        name = "new_portafilter.html"
+    )
+
+@app.post("/new_portafilter", response_class = HTMLResponse)
+async def enter_new_grinder(
+        form_data : Annotated[Portafilters, Form()],
+        session : SessionDep, 
+        request : Request
+):
+    session.add(form_data)
+    session.commit()
+    session.refresh(form_data)
+    return templates.TemplateResponse(
+        request = request, 
+        name = "new_portafilter.html", 
         context = form_data.model_dump(mode = "json")
     )

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} New grinder {% endblock %}</h1>
+    <h2>Fill in the following form</h2>
+    <form method="POST" action="#" id="new_cm_form">
+        Manufacturer : <input type="text" name="manufacturer" value={{manufacturer}}> <br>
+        Model name : <input type="text" name="model_name" value={{model_name}}> <br>
+        Specifications : <input type="text" name="model_specification" value={{model_specification}}> <br>
+        Serial number : <input type="text" name="model_serial" value={{model_serial}}> <br>
+        Basket diameter (mm) : <input type="text" name="basket_diameter_mm" value={{basket_diameter_mm}}> <br>
+        Pressurized ? <select name="pressurized">
+            <option value="yes">yes</option>
+            <option value="no" selected>no</option>
+        </select> <br>
+        Basket shot size : <select name="basket_shot_size">
+            <option value="single">single</option>
+            <option value="double" selected>double</option>
+            <option value="triple">triple</option>
+            <option value="quadruple">quadruple</option>
+        </select> <br>
+        Spout type : <select name="spout">
+            <option value="single">single</option>
+            <option value="double" selected>double</option>
+            <option value="bottomless">bottomless</option>
+        </select> <br>
+        <input type="submit" value="Submit">
+    </form>
+    <h2>Portafilter details has been entered as follows:</h2>
+    Manufacturer : {{manufacturer}} <br>
+    Model name : {{model_name}} <br>
+    Specifications : {{model_specification}} <br>
+    Serial number : {{model_serial}} <br>
+    Basket diameter (mm) : {{basket_diameter_mm}} <br>
+    Pressurized ? {{pressurized}} <br>
+    Basket shot size : {{basket_shot_size}} <br>
+    Spout type : {{spout}} <br>
+{% endblock %}

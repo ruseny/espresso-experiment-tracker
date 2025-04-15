@@ -55,7 +55,6 @@ class Portafilters(SQLModel, table = True):
     id : Optional[int] = Field(default = None, primary_key = True)
     manufacturer : str = Field(default = None)
     model_name : str = Field(default = None)
-    model_name_add : Optional[str] = Field(default = None)
     model_specification : Optional[str] = Field(default = None)
     model_serial : str = Field(default = None)
     basket_diameter_mm : int = Field(default = None)
