@@ -264,12 +264,12 @@ INSERT INTO EquipmentOwnership (
     portafilter_id, 
     purchase_date, 
     purchased_from, 
-    purchace_price_eur
+    purchase_price_eur
 )
 VALUES
     (
         1, 
-        'coffee machine',
+        'coffee_machine',
         1, 
         NULL,
         NULL,
@@ -349,7 +349,7 @@ VALUES
     ),
     (
         2, 
-        'coffee machine',
+        'coffee_machine',
         2,
         NULL,
         NULL,
