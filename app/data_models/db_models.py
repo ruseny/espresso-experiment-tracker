@@ -72,7 +72,7 @@ class EquipmentOwnership(SQLModel, table = True):
     portafilter_id : Optional[int] = Field(default = None, foreign_key = "Portafilters.id")
     purchase_date : Optional[date] = Field(default = None)
     purchased_from : Optional[str] = Field(default = None)
-    purchace_price_eur : Optional[float] = Field(default = None)
+    purchase_price_eur : Optional[float] = Field(default = None)
 
 class UserDefaults(SQLModel, table = True):
     __tablename__ = "UserDefaults"
