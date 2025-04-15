@@ -75,6 +75,58 @@ def get_portafilter_dict(user_id : int) -> dict:
         result = session.exec(query)
     return {row.id: row.product for row in result}
 
+def get_all_coffee_machines_dict() -> dict:
+    query = text(f"""
+        SELECT 
+            id,
+            CONCAT(
+                manufacturer, ' ', 
+                model_name, ' ', 
+                model_name_add, ' ', 
+                model_specification
+                ) AS product
+        FROM CoffeeMachines
+        ;
+    """)
+    with Session(db_engine) as session:
+        result = session.exec(query)
+    return {row.id: row.product for row in result}
+
+def get_all_grinders_dict() -> dict:
+    query = text(f"""
+        SELECT 
+            id,
+            CONCAT(
+                manufacturer, ' ', 
+                model_name, ' ', 
+                model_name_add, ' ', 
+                model_specification
+                ) AS product
+        FROM Grinders
+        ;
+    """)
+    with Session(db_engine) as session:
+        result = session.exec(query)
+    return {row.id: row.product for row in result}
+
+def get_all_portafilters_dict() -> dict:
+    query = text(f"""
+        SELECT 
+            id,
+            CONCAT(
+                manufacturer, ' ', 
+                model_name, ' ', 
+                model_specification, ' ',
+                basket_shot_size
+                ) AS product
+        FROM Portafilters
+        ;
+    """)
+    with Session(db_engine) as session:
+        result = session.exec(query)
+    return {row.id: row.product for row in result}
+
+
 def get_purchase_dict(user_id : int, 
     time_frame : int = 30, max_items : int = 10) -> dict:
     date_threshold = date.today() - timedelta(days = time_frame)
