@@ -12,10 +12,7 @@ from typing import Annotated
 # Local module imports:
 from .dependencies.db_session import SessionDep
 from .data_models.db_models import *
-from .crud.selection_dicts import (
-    get_user_dict, get_coffee_machine_dict, get_grinder_dict, 
-    get_portafilter_dict, get_purchase_dict
-)
+from .crud.selection_dicts import *
 
 # Initialise app and frontend
 app = FastAPI()
@@ -174,5 +171,51 @@ async def enter_new_grinder(
     return templates.TemplateResponse(
         request = request, 
         name = "new_portafilter.html", 
+        context = form_data.model_dump(mode = "json")
+    )
+
+@app.get("/own_equipment", response_class = HTMLResponse)
+async def owned_equipment_page(request : Request):
+    if app.state.current_user == 0:
+        return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
+    user_id = app.state.current_user
+    user_name = user_dict[user_id]
+    machine_dict = get_all_coffee_machines_dict()
+    grinder_dict = get_all_grinders_dict()
+    portafilter_dict = get_all_portafilters_dict()
+    return templates.TemplateResponse(
+        request = request, 
+        name = "own_equipment.html",
+        context = {
+            "user_id" : user_id,
+            "current_user" : user_name, 
+            "machine_dict" : machine_dict,
+            "grinder_dict" : grinder_dict,
+            "portafilter_dict" : portafilter_dict
+        }
+    )
+
+@app.post("/own_equipment", response_class = HTMLResponse)
+async def enter_owned_equipment(
+    form_data : Annotated[EquipmentOwnership, Form()], 
+    session : SessionDep,
+    request : Request
+):
+    if form_data.equipment_type == "coffee machine":
+        form_data.grinder_id = None
+        form_data.portafilter_id = None
+    elif form_data.equipment_type == "grinder":
+        form_data.coffee_machine_id = None
+        form_data.portafilter_id = None
+    elif form_data.equipment_type == "portafilter":
+        form_data.coffee_machine_id = None
+        form_data.grinder_id = None
+
+    session.add(form_data)
+    session.commit()
+    session.refresh(form_data)
+    return templates.TemplateResponse(
+        request = request, 
+        name = "own_equipment.html", 
         context = form_data.model_dump(mode = "json")
     )

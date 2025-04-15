@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Define equipment ownership {% endblock %}</h1>
+    <h2>Fill in the following form</h2>
+    <form method="POST" action="#" id="own_equip_form">
+        Current user : {{ current_user }} <input type="hidden" id="user_id" name="user_id" value={{user_id}}> <br>
+        Equipment type : <select name="equipment_type">
+            <option value="coffee machine">Coffee machine</option>
+            <option value="grinder">Grinder</option>
+            <option value="portafilter">Portafilter</option>
+            </select> <br>
+        Coffee machine : <select name="coffee_machine_id">
+            <option value="">Please select</option>
+            {% for id in machine_dict %}
+                <option value="{{ id }}">{{ machine_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
+        Grinder : <select name="grinder_id">
+            <option value="">Please select</option>
+            {% for id in grinder_dict %}
+                <option value="{{ id }}">{{ grinder_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
+        Portafilter : <select name="portafilter_id">
+            <option value="">Please select</option>
+            {% for id in portafilter_dict %}
+                <option value="{{ id }}">{{ portafilter_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
+        Purchased on (date) : <input type="text" name="purchase_date" value={{purchase_date}}> <br>
+        Purchased from : <input type="text" name="purchased_from" value={{purchased_from}}> <br>
+        Purchase price (EUR) : <input type="text" name="purchase_price_eur" value={{purchase_price_eur}}> <br>
+        <input type="submit" value="Submit">
+    </form>
+    <h2>Equipment ownership has been entered as follows:</h2>
+    Current user : {{ current_user }} <br>
+    Equipment type : {{ equipment_type }} <br>
+    Coffee machine : {{ coffee_machine_id }} <br>
+    Grinder : {{ grinder_id }} <br>
+    Portafilter : {{ portafilter_id }} <br>
+    Purchased on (date) : {{ purchase_date }} <br>
+    Purchased from : {{ purchased_from }} <br>
+    Purchase price (EUR) : {{ purchase_price_eur }} <br>
+{% endblock %}
