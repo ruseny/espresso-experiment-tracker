@@ -26,7 +26,7 @@ def get_coffee_machine_dict(user_id : int) -> dict:
         JOIN CoffeeMachines AS m
         ON e.coffee_machine_id = m.id
         WHERE e.user_id = {user_id}
-            AND e.equipment_type = 'coffee machine'
+            AND e.equipment_type = 'coffee_machine'
         ;
     """)
     with Session(db_engine) as session:

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Set new defaults {% endblock %}</h1>
+    <h2>Fill in the following form</h2>
+    <form method="POST" id="user_def_form">
+        Current user : {{ current_user }} <input type="hidden" id="user_id" name="user_id" value={{user_id}}> <br>
+        Setup name : <input type="text" name="setup_name"> <br>
+        Coffee machine : <select name="coffee_machine_id">
+            {% for id in machine_dict %}
+                <option value="{{ id }}">{{ machine_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
+        Grinder : <select name="grinder_id">
+            {% for id in grinder_dict %}
+                <option value="{{ id }}">{{ grinder_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
+        Portafilter : <select name="portafilter_id">
+            {% for id in portafilter_dict %}
+                <option value="{{ id }}">{{ portafilter_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
+        WDT used ? <select name="wdt_used">
+            <option value="yes">yes</option>
+            <option value="no">no</option> 
+        </select> <br>
+        Tamping method : <select name="tamping_method">
+            <option value="manual">manual</option>
+            <option value="automatic">automatic</option>
+        </select>
+        Tamping force (kg) : <input type="text" name="tamping_weight_kg"> <br>
+        Leveler used ? <select name="leveler_used">
+            <option value="yes">yes</option>
+            <option value="no">no</option> 
+        </select> <br>
+        Puck screen used ? <select name="puck_screen_used">
+            <option value="yes">yes</option>
+            <option value="no">no</option> 
+        </select>
+        Puck screen thickness (mm) : <input type="text" name="puck_screen_thickness_mm"> <br>
+        <input type="submit" value="Submit">
+    </form>
+    <h2>The default settings for the user: {{ current_user }}</h2>
+    Setup name : {{ setup_name }} <br>
+    Coffee machine : {{ machine_name }} <br>
+    Grinder : {{ grinder_name }} <br>
+    Portafilter : {{ portafilter_name }} <br>
+    WDT : {{ wdt_used }} <br>
+    Tamping method : {{ tamping_method }} <br>
+    Tamping force (kg) : {{ tamping_weight_kg }} <br>
+    Leveler : {{ leveler_used }} <br>
+    Puck screen : {{ puck_screen_used }} <br>
+    Puck screen thickness (mm) : {{ puck_screen_thickness_mm }} <br>
+{% endblock %}

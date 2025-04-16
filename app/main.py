@@ -38,36 +38,6 @@ async def enter_user(user_id : Annotated[int, Form()]):
     app.state.current_user = user_id
     return RedirectResponse(url = "/new_experiment", status_code=status.HTTP_302_FOUND)
 
-@app.get("/show_experiment", response_class = HTMLResponse)
-async def display_experiment_page(request : Request, session : SessionDep):
-    query = select(EspressoExperiments).order_by(EspressoExperiments.id.desc()).limit(1)
-    last_entry = session.exec(query).one()
-    context_dict = last_entry.model_dump(mode = "json")
-
-    user_id = context_dict["user_id"]
-    user_name = user_dict[context_dict["user_id"]]
-
-    machine_dict = get_coffee_machine_dict(user_id)
-    machine_name = machine_dict[context_dict["coffee_machine_id"]]
-    grinder_dict = get_grinder_dict(user_id)
-    grinder_name = grinder_dict[context_dict["grinder_id"]]
-    portafilter_dict = get_portafilter_dict(user_id)
-    portafilter_name = portafilter_dict[context_dict["portafilter_id"]]
-    purchase_dict = get_purchase_dict(user_id)
-    coffee_name = purchase_dict[context_dict["coffee_bean_purchase_id"]]
-
-    context_dict["user_name"] = user_name
-    context_dict["machine_name"] = machine_name
-    context_dict["grinder_name"] = grinder_name
-    context_dict["portafilter_name"] = portafilter_name
-    context_dict["coffee_name"] = coffee_name
-
-    return templates.TemplateResponse(
-        request = request, 
-        name = "show_experiment.html",
-        context = context_dict
-    )
-
 @app.get("/new_experiment", response_class = HTMLResponse)
 async def new_experiment_page(request : Request):
     if app.state.current_user == 0:
@@ -195,7 +165,7 @@ async def owned_equipment_page(request : Request):
         }
     )
 
-@app.post("/own_equipment", response_class = HTMLResponse)
+@app.post("/own_equipment", response_class = RedirectResponse)
 async def enter_owned_equipment(
     form_data : Annotated[EquipmentOwnership, Form()], 
     session : SessionDep,
@@ -214,8 +184,93 @@ async def enter_owned_equipment(
     session.add(form_data)
     session.commit()
     session.refresh(form_data)
+    return RedirectResponse(
+        url = "/own_equipment",
+        status_code = status.HTTP_302_FOUND
+    )
+
+@app.get("/user_defaults", response_class = HTMLResponse)
+async def user_defaults_page(request : Request, session : SessionDep):
+    if app.state.current_user == 0:
+        return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
+    user_id = app.state.current_user
+    user_name = user_dict[user_id]
+
+    query = select(UserDefaults).where(UserDefaults.user_id == user_id)
+    ex_default = session.exec(query).one()
+    context_dict = ex_default.model_dump(mode = "json")
+    
+    machine_dict = get_coffee_machine_dict(user_id)
+    machine_name = machine_dict[context_dict["coffee_machine_id"]]
+    grinder_dict = get_grinder_dict(user_id)
+    grinder_name = grinder_dict[context_dict["grinder_id"]]
+    portafilter_dict = get_portafilter_dict(user_id)
+    portafilter_name = portafilter_dict[context_dict["portafilter_id"]]
+
+    context_dict["current_user"] = user_name
+    context_dict["machine_name"] = machine_name
+    context_dict["grinder_name"] = grinder_name
+    context_dict["portafilter_name"] = portafilter_name
+    context_dict["user_id"] = user_id
+    context_dict["machine_dict"] = machine_dict
+    context_dict["grinder_dict"] = grinder_dict
+    context_dict["portafilter_dict"] = portafilter_dict
+
     return templates.TemplateResponse(
         request = request, 
-        name = "own_equipment.html", 
-        context = form_data.model_dump(mode = "json")
+        name = "user_defaults.html", 
+        context = context_dict
+    )
+
+@app.post("/user_defaults", response_class = RedirectResponse)
+async def enter_user_defaults(
+    form_data : Annotated[UserDefaults, Form()], 
+    session : SessionDep, 
+    request : Request
+):
+    query = select(UserDefaults).where(UserDefaults.user_id == app.state.current_user)
+    db_data = session.exec(query).one()
+    subm_data = form_data.model_dump(exclude_unset = True)
+    for key in subm_data:
+        if subm_data[key] == "":
+            subm_data[key] = None
+    db_data.sqlmodel_update(subm_data)
+    
+    session.add(db_data)
+    session.commit()
+    session.refresh(db_data)
+
+    return RedirectResponse(
+        url = "/user_defaults",
+        status_code = status.HTTP_302_FOUND
+    )
+
+@app.get("/show_experiment", response_class = HTMLResponse)
+async def display_experiment_page(request : Request, session : SessionDep):
+    query = select(EspressoExperiments).order_by(EspressoExperiments.id.desc()).limit(1)
+    last_entry = session.exec(query).one()
+    context_dict = last_entry.model_dump(mode = "json")
+
+    user_id = context_dict["user_id"]
+    user_name = user_dict[context_dict["user_id"]]
+
+    machine_dict = get_coffee_machine_dict(user_id)
+    machine_name = machine_dict[context_dict["coffee_machine_id"]]
+    grinder_dict = get_grinder_dict(user_id)
+    grinder_name = grinder_dict[context_dict["grinder_id"]]
+    portafilter_dict = get_portafilter_dict(user_id)
+    portafilter_name = portafilter_dict[context_dict["portafilter_id"]]
+    purchase_dict = get_purchase_dict(user_id)
+    coffee_name = purchase_dict[context_dict["coffee_bean_purchase_id"]]
+
+    context_dict["user_name"] = user_name
+    context_dict["machine_name"] = machine_name
+    context_dict["grinder_name"] = grinder_name
+    context_dict["portafilter_name"] = portafilter_name
+    context_dict["coffee_name"] = coffee_name
+
+    return templates.TemplateResponse(
+        request = request, 
+        name = "show_experiment.html",
+        context = context_dict
     )
