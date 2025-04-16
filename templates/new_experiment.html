@@ -29,7 +29,7 @@
             <option value="manual" {% if (default_tamping_method == "manual") %} selected="selected" {% endif %}>manual</option>
             <option value="automatic" {% if (default_tamping_method == "automatic") %} selected="selected" {% endif %}>automatic</option>
         </select>
-        Tamping force (kg) : <input type="text" name="tamping_force_kg" value={{default_tamping_weight_kg}}> <br>
+        Tamping force (kg) : <input type="text" name="tamping_weight_kg" value={{default_tamping_weight_kg}}> <br>
         Leveler used ? <select name="leveler_used">
             <option value="yes" {% if (default_leveler_used == "yes") %} selected="selected" {% endif %}>yes</option>
             <option value="no" {% if (default_leveler_used == "manual") %} selected="selected" {% endif %}>no</option> 
