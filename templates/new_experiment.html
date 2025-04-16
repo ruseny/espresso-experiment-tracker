@@ -27,7 +27,7 @@
         </select> <br>
         Tamping method : <select name="tamping_method">
             <option value="manual" {% if (default_tamping_method == "manual") %} selected="selected" {% endif %}>manual</option>
-            <option value="automatic" {% if (default_tamping_method == "automatic") %} selected="selected" {% endif %}>automatic</option>
+            <option value="electric" {% if (default_tamping_method == "electric") %} selected="selected" {% endif %}>electric</option>
         </select>
         Tamping force (kg) : <input type="text" name="tamping_weight_kg" value={{default_tamping_weight_kg}}> <br>
         Leveler used ? <select name="leveler_used">

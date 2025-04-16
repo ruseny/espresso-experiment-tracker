@@ -415,8 +415,25 @@ async def enter_experiment_rating(
     session.commit()
     session.refresh(db_data)
 
+    context_dict = db_data.model_dump(mode = "json")
+    user_id = context_dict["user_id"]
+    user_name = user_dict[context_dict["user_id"]]
+    machine_dict = get_coffee_machine_dict(user_id)
+    machine_name = machine_dict[context_dict["coffee_machine_id"]]
+    grinder_dict = get_grinder_dict(user_id)
+    grinder_name = grinder_dict[context_dict["grinder_id"]]
+    portafilter_dict = get_portafilter_dict(user_id)
+    portafilter_name = portafilter_dict[context_dict["portafilter_id"]]
+    purchase_dict = get_purchase_dict(user_id)
+    coffee_name = purchase_dict[context_dict["coffee_bean_purchase_id"]]
+    context_dict["user_name"] = user_name
+    context_dict["machine_name"] = machine_name
+    context_dict["grinder_name"] = grinder_name
+    context_dict["portafilter_name"] = portafilter_name
+    context_dict["coffee_name"] = coffee_name
+
     return templates.TemplateResponse(
         request = request, 
         name = "rate_experiment.html", 
-        context = db_data.model_dump(mode = "json")
+        context = context_dict
     )
