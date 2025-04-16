@@ -255,6 +255,30 @@ async def enter_user_defaults(
         status_code = status.HTTP_302_FOUND
     )
 
+@app.get("/new_coffee_beans", response_class = HTMLResponse)
+async def new_coffee_bean_page(request : Request):
+    if app.state.current_user == 0:
+        return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
+    return templates.TemplateResponse(
+        request = request, 
+        name = "new_coffee_beans.html"
+    )
+
+@app.post("/new_coffee_beans", response_class = HTMLResponse)
+async def enter_new_coffee_bean(
+        form_data : Annotated[CoffeeBeanVarieties, Form()],
+        session : SessionDep, 
+        request : Request
+):
+    session.add(form_data)
+    session.commit()
+    session.refresh(form_data)
+    return templates.TemplateResponse(
+        request = request, 
+        name = "new_coffee_beans.html", 
+        context = form_data.model_dump(mode = "json")
+    )
+
 @app.get("/show_experiment", response_class = HTMLResponse)
 async def display_experiment_page(request : Request, session : SessionDep):
     query = select(EspressoExperiments).order_by(EspressoExperiments.id.desc()).limit(1)
