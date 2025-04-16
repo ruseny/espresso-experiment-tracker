@@ -126,6 +126,20 @@ def get_all_portafilters_dict() -> dict:
         result = session.exec(query)
     return {row.id: row.product for row in result}
 
+def get_all_coffees_dict() -> dict:
+    query = text(f"""
+        SELECT 
+            id,
+            CONCAT(
+                producer, ' ', 
+                name, ' '
+                ) AS product
+        FROM CoffeeBeanVarieties
+        ;
+    """)
+    with Session(db_engine) as session:
+        result = session.exec(query)
+    return {row.id: row.product for row in result}
 
 def get_purchase_dict(user_id : int, 
     time_frame : int = 30, max_items : int = 10) -> dict:

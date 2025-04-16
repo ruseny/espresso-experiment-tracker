@@ -279,6 +279,53 @@ async def enter_new_coffee_bean(
         context = form_data.model_dump(mode = "json")
     )
 
+@app.get("/new_coffee_purchase", response_class = HTMLResponse)
+async def new_coffee_purchase_page(request : Request):
+    if app.state.current_user == 0:
+        return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
+    user_id = app.state.current_user
+    user_name = user_dict[user_id]
+
+    variety_dict = get_all_coffees_dict()
+
+    return templates.TemplateResponse(
+        request = request, 
+        name = "new_coffee_purchase.html", 
+        context = {
+            "user_id" : user_id,
+            "current_user" : user_name, 
+            "variety_dict" : variety_dict
+        }
+    )
+
+@app.post("/new_coffee_purchase", response_class = HTMLResponse)
+async def enter_new_coffee_purchase(
+    request : Request,
+    form_data : Annotated[CoffeeBeanPurchases, Form()], 
+    session : SessionDep
+):
+    if form_data.roast_date == "":
+        form_data.roast_date = None
+
+    session.add(form_data)
+    session.commit()
+    session.refresh(form_data)
+
+    user_id = app.state.current_user
+    user_name = user_dict[user_id]
+    variety_dict = get_all_coffees_dict()
+
+    context_dict = form_data.model_dump(mode = "json")
+    context_dict["user_id"] = user_id
+    context_dict["current_user"] = user_name
+    context_dict["variety_dict"] = variety_dict
+
+    return templates.TemplateResponse(
+        request = request, 
+        name = "new_coffee_purchase.html", 
+        context = context_dict
+    )
+
 @app.get("/show_experiment", response_class = HTMLResponse)
 async def display_experiment_page(request : Request, session : SessionDep):
     query = select(EspressoExperiments).order_by(EspressoExperiments.id.desc()).limit(1)

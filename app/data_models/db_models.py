@@ -110,7 +110,7 @@ class CoffeeBeanPurchases(SQLModel, table = True):
     variety_id : int = Field(default = 1, foreign_key = "CoffeeBeanVarieties.id")
     purchase_date : date = Field(default_factory = date.today)
     purchased_from : str = Field(default = None)
-    roast_date : date = Field(default = None)
+    roast_date : Optional[date] = Field(default = None)
     weight_kg : float = Field(default = None)
     price_per_kg_eur : float = Field(default = None)
 

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} New coffee purchase {% endblock %}</h1>
+    <h2>Fill in the following form</h2>
+    <form method="POST" action="#" id="new_coffee_purchase_form">
+        Current user : {{ current_user }} <input type="hidden" id="user_id" name="user_id" value={{user_id}}> <br>
+        Coffee beans : <select name="variety_id">
+            {% for id in variety_dict %}
+                <option value="{{ id }}">{{ variety_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
+        Purchase date : <input type="text" name="purchase_date" value={{purchase_date}}> <br>
+        Purchased from : <input type="text" name="purchased_from" value={{purchased_from}}> <br>
+        Roast date : <input type="text" name="roast_date" value={{roast_date}}> <br>
+        Weight (kg) : <input type="text" name="weight_kg" value={{weight_kg}}> <br>
+        Price per kg (EUR) : <input type="text" name="price_per_kg_eur" value={{price_per_kg_eur}}> <br>
+        <input type="submit" value="Submit">
+    </form>
+    <h2>The user {{ current_user }} entered the following purchase:</h2>
+    Coffee beans : {{variety_dict[variety_id]}} <br>
+    Purchase date : {{ purchase_date }} <br>
+    Purchased from : {{ purchased_from }} <br>
+    Roast date : {{ roast_date }} <br>
+    Weight (kg) : {{ weight_kg }} <br>
+    Price per kg (EUR) : {{ price_per_kg_eur }} <br>
+{% endblock %}

@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS CoffeeBeanPurchases (
     variety_id INT NOT NULL,
     purchase_date DATE NOT NULL,
     purchased_from VARCHAR(255) NOT NULL,
-    roast_date DATE,
+    roast_date DATE DEFAULT NULL,
     weight_kg DECIMAL(5,2) NOT NULL,
     price_per_kg_eur DECIMAL(5,2) NOT NULL,
     PRIMARY KEY (id),
