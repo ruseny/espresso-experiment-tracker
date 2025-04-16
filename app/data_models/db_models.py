@@ -86,6 +86,7 @@ class UserDefaults(SQLModel, table = True):
     leveler_used : YesNo = Field(default = "no")   
     puck_screen_used : YesNo = Field(default = "no")
     puck_screen_thickness_mm : Optional[float] = Field(default = None)
+    water_temp_c : Optional[int] = Field(default = 93)
     setup_name : Optional[str] = Field(default = None)
 
 class CoffeeBeanVarieties(SQLModel, table = True):

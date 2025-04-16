@@ -65,7 +65,6 @@ async def new_experiment_page(request : Request, session : SessionDep):
     context_dict["grinder_dict"] = grinder_dict
     context_dict["portafilter_dict"] = portafilter_dict
     context_dict["purchase_dict"] = purchase_dict
-    context_dict["water_temp_c"] = 93
 
     return templates.TemplateResponse(
         request = request, 

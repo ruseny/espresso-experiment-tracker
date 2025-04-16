@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS UserDefaults (
     leveler_used ENUM('yes', 'no') NOT NULL,
     puck_screen_used ENUM('yes', 'no') NOT NULL,
     puck_screen_thickness_mm DECIMAL(5, 2),
+    water_temp_c SMALLINT DEFAULT 93,
     setup_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (user_id),
     FOREIGN KEY (coffee_machine_id) REFERENCES CoffeeMachines(id)
