@@ -5,39 +5,40 @@
     <h2>Fill in the following form</h2>
     <form method="POST" action="#" id="new_exp_form">
         Current user : {{ current_user }} <input type="hidden" id="user_id" name="user_id" value={{user_id}}> <br>
+        Default values retrieved from the setup : {{ default_setup_name}} <br>
         Coffee machine : <select name="coffee_machine_id">
             {% for id in machine_dict %}
-                <option value="{{ id }}">{{ machine_dict[id] }}</option>
+                <option value="{{ id }}" {% if (id == default_coffee_machine_id) %} selected="selected" {% endif %}>{{ machine_dict[id] }}</option>
             {% endfor %}
         </select> <br>
         Grinder : <select name="grinder_id">
             {% for id in grinder_dict %}
-                <option value="{{ id }}">{{ grinder_dict[id] }}</option>
+                <option value="{{ id }}" {% if (id == default_grinder_id) %} selected="selected" {% endif %}>{{ grinder_dict[id] }}</option>
             {% endfor %}
         </select> <br>
         Portafilter : <select name="portafilter_id">
             {% for id in portafilter_dict %}
-                <option value="{{ id }}">{{ portafilter_dict[id] }}</option>
+                <option value="{{ id }}" {% if (id == default_portafilter_id) %} selected="selected" {% endif %}>{{ portafilter_dict[id] }}</option>
             {% endfor %}
         </select> <br>
         WDT used ? <select name="wdt_used">
-            <option value="yes">yes</option>
-            <option value="no">no</option> 
+            <option value="yes" {% if (default_wdt_used == "yes") %} selected="selected" {% endif %}>yes</option>
+            <option value="no" {% if (default_wdt_used == "no") %} selected="selected" {% endif %}>no</option> 
         </select> <br>
         Tamping method : <select name="tamping_method">
-            <option value="manual">manual</option>
-            <option value="automatic">automatic</option>
+            <option value="manual" {% if (default_tamping_method == "manual") %} selected="selected" {% endif %}>manual</option>
+            <option value="automatic" {% if (default_tamping_method == "automatic") %} selected="selected" {% endif %}>automatic</option>
         </select>
-        Tamping force (kg) : <input type="text" name="tamping_force_kg" value={{tamping_force_kg}}> <br>
+        Tamping force (kg) : <input type="text" name="tamping_force_kg" value={{default_tamping_weight_kg}}> <br>
         Leveler used ? <select name="leveler_used">
-            <option value="yes">yes</option>
-            <option value="no">no</option> 
+            <option value="yes" {% if (default_leveler_used == "yes") %} selected="selected" {% endif %}>yes</option>
+            <option value="no" {% if (default_leveler_used == "manual") %} selected="selected" {% endif %}>no</option> 
         </select> <br>
         Puck screen used ? <select name="puck_screen_used">
-            <option value="yes">yes</option>
-            <option value="no">no</option> 
+            <option value="yes" {% if (default_puck_screen_used == "yes") %} selected="selected" {% endif %}>yes</option>
+            <option value="no" {% if (default_puck_screen_used == "no") %} selected="selected" {% endif %}>no</option> 
         </select>
-        Puck screen thickness (mm) : <input type="text" name="puck_screen_thickness_mm" value={{puck_screen_thickness_mm}}> <br>
+        Puck screen thickness (mm) : <input type="text" name="puck_screen_thickness_mm" value={{default_puck_screen_thickness_mm}}> <br>
         Coffee beans : <select name="coffee_bean_purchase_id">
             {% for id in purchase_dict %}
                 <option value="{{ id }}">{{ purchase_dict[id] }}</option>

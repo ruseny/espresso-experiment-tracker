@@ -39,27 +39,38 @@ async def enter_user(user_id : Annotated[int, Form()]):
     return RedirectResponse(url = "/new_experiment", status_code=status.HTTP_302_FOUND)
 
 @app.get("/new_experiment", response_class = HTMLResponse)
-async def new_experiment_page(request : Request):
+async def new_experiment_page(request : Request, session : SessionDep):
     if app.state.current_user == 0:
         return RedirectResponse(url = "/", status_code=status.HTTP_302_FOUND)
     user_id = app.state.current_user
     user_name = user_dict[user_id]
+
     machine_dict = get_coffee_machine_dict(user_id)
     grinder_dict = get_grinder_dict(user_id)
     portafilter_dict = get_portafilter_dict(user_id)
     purchase_dict = get_purchase_dict(user_id)
+
+    query = select(UserDefaults).where(UserDefaults.user_id == user_id)
+    default_setup = session.exec(query).one()
+    default_dict = default_setup.model_dump(mode = "json")
+
+    context_dict = {}
+    for key in default_dict:
+        if default_dict[key] is None:
+            default_dict[key] = ""
+        context_dict["default_" + key] = default_dict[key]
+    context_dict["user_id"] = user_id
+    context_dict["current_user"] = user_name
+    context_dict["machine_dict"] = machine_dict
+    context_dict["grinder_dict"] = grinder_dict
+    context_dict["portafilter_dict"] = portafilter_dict
+    context_dict["purchase_dict"] = purchase_dict
+    context_dict["water_temp_c"] = 93
+
     return templates.TemplateResponse(
         request = request, 
         name = "new_experiment.html",
-        context = {
-            "user_id" : user_id,
-            "current_user" : user_name, 
-            "machine_dict" : machine_dict,
-            "grinder_dict" : grinder_dict,
-            "portafilter_dict" : portafilter_dict,
-            "purchase_dict" : purchase_dict,
-            "water_temp_c" : 93
-        }
+        context = context_dict
     )
 
 @app.post("/new_experiment", response_class = RedirectResponse)
