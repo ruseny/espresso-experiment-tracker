@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{% block title %} Home {% endblock %}</h1>
+    <h2>Please check in</h2>
+    <form method="POST" action="#" id="user_checkin">
+        User : <select name="user_id">
+            {% for id in user_dict %}
+                <option value="{{ id }}">{{ user_dict[id] }}</option>
+            {% endfor %}
+        </select> <br>
+        <input type="submit" value="Submit">
+    </form>
+
+{% endblock %}
