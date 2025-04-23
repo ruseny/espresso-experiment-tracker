@@ -34,7 +34,7 @@ async def check_in_user(user_id : int):
     return {"message" : "User update successful."}
 ######################################################
 
-# User's lists ####################################
+# User's lists #######################################
 @app.get("/equipment/{user_id}")
 async def send_equipment_data(user_id : int) -> dict:
     machine_dict = get_coffee_machine_dict(user_id)
@@ -47,8 +47,11 @@ async def send_equipment_data(user_id : int) -> dict:
     }
 
 @app.get("/coffee/producers/{user_id}")
-async def send_producer_data(user_id : int, 
-    time_frame : int = 30, max_items : int = 10) -> dict:
+async def send_producer_data(
+    user_id : int, 
+    time_frame : int = 30, 
+    max_items : int = 10
+) -> dict:
     producer_list = get_producer_list(
         user_id = user_id, 
         time_frame = time_frame, 
@@ -57,17 +60,18 @@ async def send_producer_data(user_id : int,
     return {"producer_list" : producer_list}
 
 @app.get("/coffee/purchases/{user_id}")
-async def send_coffe_purchase_data(user_id : int, 
+async def send_coffe_purchase_data(
+    user_id : int, 
     time_frame : int = 30,
     max_items : int = 10, 
-    producers : Annotated[list, Query()] = None) -> dict:
-    purchase_dict = get_purchase_dict(
+    producers : Annotated[list, Query()] = None
+) -> dict:
+    return get_purchase_dict(
         user_id = user_id,
         time_frame = time_frame,
         max_items = max_items,
         producers = producers
     )
-    return purchase_dict
 ######################################################
 
 # User defaults #######################################
@@ -79,7 +83,7 @@ async def send_defaults_data(user_id : int) -> dict:
 async def save_user_defaults(
     default_setup_data: UserDefaults, 
     session : SessionDep
-):
+) -> dict:
     session.add(default_setup_data)
     session.commit()
     session.refresh(default_setup_data)
@@ -87,14 +91,14 @@ async def save_user_defaults(
 
 @app.put("/user_defaults/")
 async def update_user_defaults(
-    default_setup_data: UserDefaults, 
+    defaults_data: UserDefaults, 
     session : SessionDep
-):
+) -> dict:
     query = select(UserDefaults).where(
-        UserDefaults.user_id == default_setup_data.user_id
-        )
+        UserDefaults.user_id == defaults_data.user_id
+    )
     db_data = session.exec(query).one()
-    subm_data = default_setup_data.model_dump(exclude_unset = True)
+    subm_data = defaults_data.model_dump(exclude_unset = True)
     db_data.sqlmodel_update(subm_data)
     
     session.add(db_data)
@@ -102,14 +106,14 @@ async def update_user_defaults(
     session.refresh(db_data)
 
     return {"message" : "User defaults updated successfully."}
-####################################################################
+################################################################
 
-# Espresso ############################################################
+# Espresso ##########################################################
 @app.post("/new_espresso/save_espresso/")
 async def save_new_espresso(
     espresso_data : EspressoExperiments, 
     session : SessionDep
-):
+) -> dict:
     session.add(espresso_data)
     session.commit()
     session.refresh(espresso_data)
@@ -128,10 +132,10 @@ async def save_new_espresso(
 async def evaluate_espresso(
     eval_data : EspressoExperiments, 
     session : SessionDep
-):
+) -> dict:
     query = select(EspressoExperiments).where(
         EspressoExperiments.id == eval_data.id
-        )
+    )
     db_data = session.exec(query).one()
     subm_data = eval_data.model_dump(exclude_unset = True)
     db_data.sqlmodel_update(subm_data)
@@ -140,9 +144,7 @@ async def evaluate_espresso(
     session.commit()
     session.refresh(db_data)
 
-    return {
-        "message" : "Evaluation has been saved successfully."
-    }
+    return {"message" : "Evaluation has been saved successfully."}
 #######################################################################
 
 # Full lists ##########################################################
@@ -200,7 +202,7 @@ async def send_all_equipment_sellers() -> dict:
 async def save_new_coffee_purchase(
     purchase_data : CoffeeBeanPurchases,
     session : SessionDep
-):
+) -> dict:
     session.add(purchase_data)
     session.commit()
     session.refresh(purchase_data)
@@ -211,7 +213,7 @@ async def save_new_coffee_purchase(
 async def save_new_coffee_variety(
     variety_data : CoffeeBeanVarieties, 
     session : SessionDep
-):
+) -> dict:
     session.add(variety_data)
     session.commit()
     session.refresh(variety_data)
@@ -224,7 +226,7 @@ async def save_new_coffee_variety(
 async def add_owned_equipment(
     equipment_data : EquipmentOwnership,
     session : SessionDep
-):
+) -> dict:
     session.add(equipment_data)
     session.commit()
     session.refresh(equipment_data)
@@ -235,7 +237,7 @@ async def add_owned_equipment(
 async def save_new_coffee_machine(
     coffee_machine_data : CoffeeMachines,
     session : SessionDep
-):
+) -> dict:
     session.add(coffee_machine_data)
     session.commit()
     session.refresh(coffee_machine_data)
@@ -246,7 +248,7 @@ async def save_new_coffee_machine(
 async def save_new_grinder(
     grinder_data : Grinders,
     session : SessionDep
-):
+) -> dict:
     session.add(grinder_data)
     session.commit()
     session.refresh(grinder_data)
@@ -257,7 +259,7 @@ async def save_new_grinder(
 async def save_new_portafilter(
     portafilter_data : Portafilters,
     session : SessionDep
-):
+) -> dict:
     session.add(portafilter_data)
     session.commit()
     session.refresh(portafilter_data)
