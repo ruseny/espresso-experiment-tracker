@@ -158,8 +158,8 @@ CREATE TABLE IF NOT EXISTS CoffeeBeanPurchases (
 
 CREATE TABLE IF NOT EXISTS EspressoExperiments (
     id INT AUTO_INCREMENT NOT NULL, 
-    user_id INT NOT NULL DEFAULT 2,
     experiment_datetime DATETIME NOT NULL,
+    user_id INT NOT NULL DEFAULT 2,
     coffee_machine_id INT NOT NULL,
     grinder_id INT NOT NULL,
     portafilter_id INT NOT NULL,
