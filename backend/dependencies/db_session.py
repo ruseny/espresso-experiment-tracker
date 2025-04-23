@@ -14,7 +14,7 @@ db_login = {
 }
 
 db_path = f"mysql+pymysql://{db_login['user']}:{db_login['password']}@{db_login['host']}:{db_login['port']}/{db_login['db_name']}"
-db_engine = create_engine(db_path)
+db_engine = create_engine(db_path, echo=True)
 def get_session():
     with Session(db_engine) as session:
         yield session

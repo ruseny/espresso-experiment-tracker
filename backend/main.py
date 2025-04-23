@@ -3,437 +3,265 @@ App for tracking espresso experiments.
 """
 
 # Library imports
-from fastapi import FastAPI, Request, Form, status
-from fastapi.responses import HTMLResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import FastAPI, Query
 from sqlmodel import select
 from typing import Annotated
 
 # Local module imports:
 from .dependencies.db_session import SessionDep
 from .data_models.db_models import *
-from .crud.selection_dicts import *
+from .crud.get_requests import *
 
-# Initialise app and frontend
+# Initialise app
 app = FastAPI()
-templates = Jinja2Templates(directory = "../templates")
 
-# Variables to share across requests
+# Persist last checked in user
 app.state.current_user = 0
 user_dict = get_user_dict()
 
+#############
+# ENDPOINTS #
+#############
 
-@app.get("/checkin", response_class = HTMLResponse)
-async def checkin_page(request : Request):
-    return templates.TemplateResponse(
-        request = request, 
-        name = "checkin.html", 
-        context = {
-            "user_dict" : user_dict
-        }
-    )
+# User check-in #####################################
+@app.get("/users/")
+async def send_user_list() -> dict:
+    return get_user_dict()
 
-@app.post("/checkin", response_class = RedirectResponse)
-async def enter_user(user_id : Annotated[int, Form()]):
+@app.post("/users/{user_id}")
+async def check_in_user(user_id : int):
     app.state.current_user = user_id
-    return RedirectResponse(
-        url = "/", 
-        status_code=status.HTTP_302_FOUND
-    )
+    return {"message" : "User update successful."}
+######################################################
 
-@app.get("/", response_class = HTMLResponse)
-async def display_home_page(request: Request):
-    if app.state.current_user == 0:
-        return RedirectResponse(
-            url = "/checkin", 
-            status_code=status.HTTP_302_FOUND
-        )
-    user_id = app.state.current_user
-    user_name = user_dict[user_id]
-    return templates.TemplateResponse(
-        request = request, 
-        name = "home.html", 
-        context = {
-            "user_id" : user_id,
-            "current_user" : user_name
-        }
-    )
-
-@app.get("/new_coffee_machine", response_class = HTMLResponse)
-async def new_coffee_machine_page(request : Request):
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_coffee_machine.html"
-    )
-
-@app.post("/new_coffee_machine", response_class = HTMLResponse)
-async def enter_new_coffee_machine(
-        form_data : Annotated[CoffeeMachines, Form()],
-        session : SessionDep, 
-        request : Request
-):
-    session.add(form_data)
-    session.commit()
-    session.refresh(form_data)
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_coffee_machine.html", 
-        context = form_data.model_dump(mode = "json")
-    )
-
-@app.get("/new_grinder", response_class = HTMLResponse)
-async def new_grinder_page(request : Request):
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_grinder.html"
-    )
-
-@app.post("/new_grinder", response_class = HTMLResponse)
-async def enter_new_grinder(
-        form_data : Annotated[Grinders, Form()],
-        session : SessionDep, 
-        request : Request
-):
-    session.add(form_data)
-    session.commit()
-    session.refresh(form_data)
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_grinder.html", 
-        context = form_data.model_dump(mode = "json")
-    )
-
-@app.get("/new_portafilter", response_class = HTMLResponse)
-async def new_portafilter_page(request : Request):
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_portafilter.html"
-    )
-
-@app.post("/new_portafilter", response_class = HTMLResponse)
-async def enter_new_portafilter(
-        form_data : Annotated[Portafilters, Form()],
-        session : SessionDep, 
-        request : Request
-):
-    session.add(form_data)
-    session.commit()
-    session.refresh(form_data)
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_portafilter.html", 
-        context = form_data.model_dump(mode = "json")
-    )
-
-@app.get("/own_equipment", response_class = HTMLResponse)
-async def owned_equipment_page(request : Request):
-    if app.state.current_user == 0:
-        return RedirectResponse(
-            url = "/checkin", 
-            status_code=status.HTTP_302_FOUND
-        )
-    
-    user_id = app.state.current_user
-    user_name = user_dict[user_id]
-    machine_dict = get_all_coffee_machines_dict()
-    grinder_dict = get_all_grinders_dict()
-    portafilter_dict = get_all_portafilters_dict()
-
-    return templates.TemplateResponse(
-        request = request, 
-        name = "own_equipment.html",
-        context = {
-            "user_id" : user_id,
-            "current_user" : user_name, 
-            "machine_dict" : machine_dict,
-            "grinder_dict" : grinder_dict,
-            "portafilter_dict" : portafilter_dict
-        }
-    )
-
-@app.post("/own_equipment", response_class = HTMLResponse)
-async def enter_owned_equipment(
-    request : Request,
-    form_data : Annotated[EquipmentOwnership, Form()], 
-    session : SessionDep
-):
-    if form_data.equipment_type == "coffee machine":
-        form_data.grinder_id = None
-        form_data.portafilter_id = None
-    elif form_data.equipment_type == "grinder":
-        form_data.coffee_machine_id = None
-        form_data.portafilter_id = None
-    elif form_data.equipment_type == "portafilter":
-        form_data.coffee_machine_id = None
-        form_data.grinder_id = None
-
-    session.add(form_data)
-    session.commit()
-    session.refresh(form_data)
-
-    context_dict = form_data.model_dump(mode = "json")
-    context_dict["user_id"] = app.state.current_user
-    context_dict["current_user"] = user_dict[app.state.current_user]
-
-    return templates.TemplateResponse(
-        request = request,
-        name = "own_equipment.html",
-        context = context_dict
-    )
-
-@app.get("/user_defaults", response_class = HTMLResponse)
-async def user_defaults_page(request : Request, session : SessionDep):
-    if app.state.current_user == 0:
-        return RedirectResponse(
-            url = "/checkin", 
-            status_code=status.HTTP_302_FOUND
-        )
-    user_id = app.state.current_user
-    user_name = user_dict[user_id]
-
-    query = select(UserDefaults).where(UserDefaults.user_id == user_id)
-    ex_default = session.exec(query).one()
-    context_dict = ex_default.model_dump(mode = "json")
-    
+# User's lists ####################################
+@app.get("/equipment/{user_id}")
+async def send_equipment_data(user_id : int) -> dict:
     machine_dict = get_coffee_machine_dict(user_id)
-    machine_name = machine_dict[context_dict["coffee_machine_id"]]
     grinder_dict = get_grinder_dict(user_id)
-    grinder_name = grinder_dict[context_dict["grinder_id"]]
     portafilter_dict = get_portafilter_dict(user_id)
-    portafilter_name = portafilter_dict[context_dict["portafilter_id"]]
+    return {
+        "machine_dict" : machine_dict,
+        "grinder_dict" : grinder_dict,
+        "portafilter_dict" : portafilter_dict
+    }
 
-    context_dict["user_id"] = user_id
-    context_dict["current_user"] = user_name
-    context_dict["machine_name"] = machine_name
-    context_dict["grinder_name"] = grinder_name
-    context_dict["portafilter_name"] = portafilter_name
-    context_dict["machine_dict"] = machine_dict
-    context_dict["grinder_dict"] = grinder_dict
-    context_dict["portafilter_dict"] = portafilter_dict
-
-    return templates.TemplateResponse(
-        request = request, 
-        name = "user_defaults.html", 
-        context = context_dict
+@app.get("/coffee/producers/{user_id}")
+async def send_producer_data(user_id : int, 
+    time_frame : int = 30, max_items : int = 10) -> dict:
+    producer_list = get_producer_list(
+        user_id = user_id, 
+        time_frame = time_frame, 
+        max_items = max_items
     )
+    return {"producer_list" : producer_list}
 
-@app.post("/user_defaults", response_class = RedirectResponse)
-async def enter_user_defaults(
-    form_data : Annotated[UserDefaults, Form()], 
+@app.get("/coffee/purchases/{user_id}")
+async def send_coffe_purchase_data(user_id : int, 
+    time_frame : int = 30,
+    max_items : int = 10, 
+    producers : Annotated[list, Query()] = None) -> dict:
+    purchase_dict = get_purchase_dict(
+        user_id = user_id,
+        time_frame = time_frame,
+        max_items = max_items,
+        producers = producers
+    )
+    return purchase_dict
+######################################################
+
+# User defaults #######################################
+@app.get("/user_defaults/{user_id}")
+async def send_defaults_data(user_id : int) -> dict:
+    return get_user_defaults_dict(user_id)
+
+@app.post("/user_defaults/")
+async def save_user_defaults(
+    default_setup_data: UserDefaults, 
     session : SessionDep
 ):
-    query = select(UserDefaults).where(UserDefaults.user_id == app.state.current_user)
+    session.add(default_setup_data)
+    session.commit()
+    session.refresh(default_setup_data)
+    return {"message" : "User defaults saved successfully."}
+
+@app.put("/user_defaults/")
+async def update_user_defaults(
+    default_setup_data: UserDefaults, 
+    session : SessionDep
+):
+    query = select(UserDefaults).where(
+        UserDefaults.user_id == default_setup_data.user_id
+        )
     db_data = session.exec(query).one()
-    subm_data = form_data.model_dump(exclude_unset = True)
-    for key in subm_data:
-        if subm_data[key] == "":
-            subm_data[key] = None
+    subm_data = default_setup_data.model_dump(exclude_unset = True)
     db_data.sqlmodel_update(subm_data)
     
     session.add(db_data)
     session.commit()
     session.refresh(db_data)
 
-    return RedirectResponse(
-        url = "/user_defaults",
-        status_code = status.HTTP_302_FOUND
-    )
+    return {"message" : "User defaults updated successfully."}
+####################################################################
 
-@app.get("/new_coffee_beans", response_class = HTMLResponse)
-async def new_coffee_bean_page(request : Request):
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_coffee_beans.html"
-    )
-
-@app.post("/new_coffee_beans", response_class = HTMLResponse)
-async def enter_new_coffee_bean(
-        form_data : Annotated[CoffeeBeanVarieties, Form()],
-        session : SessionDep, 
-        request : Request
-):
-    session.add(form_data)
-    session.commit()
-    session.refresh(form_data)
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_coffee_beans.html", 
-        context = form_data.model_dump(mode = "json")
-    )
-
-@app.get("/new_coffee_purchase", response_class = HTMLResponse)
-async def new_coffee_purchase_page(request : Request):
-    if app.state.current_user == 0:
-        return RedirectResponse(
-            url = "/checkin", 
-            status_code=status.HTTP_302_FOUND
-        )
-    
-    user_id = app.state.current_user
-    user_name = user_dict[user_id]
-    variety_dict = get_all_coffees_dict()
-
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_coffee_purchase.html", 
-        context = {
-            "user_id" : user_id,
-            "current_user" : user_name, 
-            "variety_dict" : variety_dict
-        }
-    )
-
-@app.post("/new_coffee_purchase", response_class = HTMLResponse)
-async def enter_new_coffee_purchase(
-    request : Request,
-    form_data : Annotated[CoffeeBeanPurchases, Form()], 
+# Espresso ############################################################
+@app.post("/new_espresso/save_espresso/")
+async def save_new_espresso(
+    espresso_data : EspressoExperiments, 
     session : SessionDep
 ):
-    if form_data.roast_date == "":
-        form_data.roast_date = None
-
-    session.add(form_data)
+    session.add(espresso_data)
     session.commit()
-    session.refresh(form_data)
+    session.refresh(espresso_data)
 
-    user_id = app.state.current_user
-    user_name = user_dict[user_id]
-    variety_dict = get_all_coffees_dict()
-
-    context_dict = form_data.model_dump(mode = "json")
-    context_dict["user_id"] = user_id
-    context_dict["current_user"] = user_name
-    context_dict["variety_dict"] = variety_dict
-
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_coffee_purchase.html", 
-        context = context_dict
+    last_experiment = get_users_last_experiment(
+        user_id = espresso_data.user_id
     )
 
-@app.get("/new_experiment", response_class = HTMLResponse)
-async def new_experiment_page(request : Request, session : SessionDep):
-    if app.state.current_user == 0:
-        return RedirectResponse(
-            url = "/", 
-            status_code=status.HTTP_302_FOUND
-        )
-    
-    user_id = app.state.current_user
-    user_name = user_dict[user_id]
+    return {
+        "message" : "Espresso data saved successfully.",
+        "id" : last_experiment["id"], 
+        "experiment_datetime" : last_experiment["experiment_datetime"]
+    }
 
-    machine_dict = get_coffee_machine_dict(user_id)
-    grinder_dict = get_grinder_dict(user_id)
-    portafilter_dict = get_portafilter_dict(user_id)
-    purchase_dict = get_purchase_dict(user_id)
-
-    query = select(UserDefaults).where(UserDefaults.user_id == user_id)
-    default_setup = session.exec(query).one()
-    default_dict = default_setup.model_dump(mode = "json")
-
-    context_dict = {}
-    for key in default_dict:
-        if default_dict[key] is None:
-            default_dict[key] = ""
-        context_dict["default_" + key] = default_dict[key]
-    context_dict["user_id"] = user_id
-    context_dict["current_user"] = user_name
-    context_dict["machine_dict"] = machine_dict
-    context_dict["grinder_dict"] = grinder_dict
-    context_dict["portafilter_dict"] = portafilter_dict
-    context_dict["purchase_dict"] = purchase_dict
-
-    return templates.TemplateResponse(
-        request = request, 
-        name = "new_experiment.html",
-        context = context_dict
-    )
-
-@app.post("/new_experiment", response_class = RedirectResponse)
-async def enter_new_experiment(
-    form_data : Annotated[EspressoExperiments, Form()], 
+@app.patch("/new_espresso/save_espresso/evaluate/")
+async def evaluate_espresso(
+    eval_data : EspressoExperiments, 
     session : SessionDep
 ):
-    session.add(form_data)
-    session.commit()
-    session.refresh(form_data)
-    return RedirectResponse(
-        url = "/new_experiment/rate", 
-        status_code=status.HTTP_302_FOUND
-    )
-
-@app.get("/new_experiment/rate", response_class = HTMLResponse)
-async def experiment_rating_page(request : Request, session : SessionDep):
-    if app.state.current_user == 0:
-        return RedirectResponse(
-            url = "/checkin", 
-            status_code=status.HTTP_302_FOUND
+    query = select(EspressoExperiments).where(
+        EspressoExperiments.id == eval_data.id
         )
-    
-    query = select(EspressoExperiments).order_by(EspressoExperiments.id.desc()).limit(1)
-    last_entry = session.exec(query).one()
-    context_dict = last_entry.model_dump(mode = "json")
-
-    user_id = context_dict["user_id"]
-    user_name = user_dict[context_dict["user_id"]]
-
-    machine_dict = get_coffee_machine_dict(user_id)
-    machine_name = machine_dict[context_dict["coffee_machine_id"]]
-    grinder_dict = get_grinder_dict(user_id)
-    grinder_name = grinder_dict[context_dict["grinder_id"]]
-    portafilter_dict = get_portafilter_dict(user_id)
-    portafilter_name = portafilter_dict[context_dict["portafilter_id"]]
-    purchase_dict = get_purchase_dict(user_id)
-    coffee_name = purchase_dict[context_dict["coffee_bean_purchase_id"]]
-
-    context_dict["user_name"] = user_name
-    context_dict["machine_name"] = machine_name
-    context_dict["grinder_name"] = grinder_name
-    context_dict["portafilter_name"] = portafilter_name
-    context_dict["coffee_name"] = coffee_name
-
-    return templates.TemplateResponse(
-        request = request, 
-        name = "rate_experiment.html",
-        context = context_dict
-    )
-
-@app.post("/new_experiment/rate", response_class = HTMLResponse)
-async def enter_experiment_rating(
-    request : Request,
-    form_data : Annotated[EspressoExperiments, Form()], 
-    session : SessionDep
-):
-    query = select(EspressoExperiments).where(EspressoExperiments.id == form_data.id)
     db_data = session.exec(query).one()
-    subm_data = form_data.model_dump(exclude_unset = True)
-    for key in subm_data:
-        if subm_data[key] == "":
-            subm_data[key] = None
+    subm_data = eval_data.model_dump(exclude_unset = True)
     db_data.sqlmodel_update(subm_data)
+    
     session.add(db_data)
     session.commit()
     session.refresh(db_data)
 
-    context_dict = db_data.model_dump(mode = "json")
-    user_id = context_dict["user_id"]
-    user_name = user_dict[context_dict["user_id"]]
-    machine_dict = get_coffee_machine_dict(user_id)
-    machine_name = machine_dict[context_dict["coffee_machine_id"]]
-    grinder_dict = get_grinder_dict(user_id)
-    grinder_name = grinder_dict[context_dict["grinder_id"]]
-    portafilter_dict = get_portafilter_dict(user_id)
-    portafilter_name = portafilter_dict[context_dict["portafilter_id"]]
-    purchase_dict = get_purchase_dict(user_id)
-    coffee_name = purchase_dict[context_dict["coffee_bean_purchase_id"]]
-    context_dict["user_name"] = user_name
-    context_dict["machine_name"] = machine_name
-    context_dict["grinder_name"] = grinder_name
-    context_dict["portafilter_name"] = portafilter_name
-    context_dict["coffee_name"] = coffee_name
+    return {
+        "message" : "Evaluation has been saved successfully."
+    }
+#######################################################################
 
-    return templates.TemplateResponse(
-        request = request, 
-        name = "rate_experiment.html", 
-        context = context_dict
-    )
+# Full lists ##########################################################
+@app.get("/coffee/all_varieties/")
+async def send_all_coffee_varieties(
+    producers : Annotated[list, Query()] = None
+) -> dict:
+    return get_all_coffees_dict(producers = producers)
+
+@app.get("/coffee/all_sellers/")
+async def send_all_sellers() -> dict:
+    return {"sellers_list" : get_all_sellers_list()}
+
+@app.get("/coffee/all_producers/")
+async def send_all_producers() -> dict:
+    return {"producers_list" : get_all_producers_list()}
+
+@app.get("/equipment/coffee_machines/")
+async def send_all_coffee_machines(
+    manufacturers : Annotated[list, Query()] = None
+) -> dict:
+    return get_all_coffee_machines_dict(manufacturers = manufacturers)
+
+@app.get("/equipment/coffee_machine_manufacturers/")
+async def send_all_coffee_machine_manufacturers() -> dict:
+    return {"manufacturers" : get_all_coffee_machine_manufacturers()}
+
+@app.get("/equipment/grinders/")
+async def send_all_grinders(
+    manufacturers : Annotated[list, Query()] = None
+) -> dict:
+    return get_all_grinders_dict(manufacturers = manufacturers)
+
+@app.get("/equipment/grinder_manufacturers/")
+async def send_all_grinder_manufacturers() -> dict:
+    return {"manufacturers" : get_all_grinder_manufacturers()}
+
+@app.get("/equipment/portafilters/")
+async def send_all_portafilters(
+    manufacturers : Annotated[list, Query()] = None
+) -> dict:
+    return get_all_portafilters_dict(manufacturers = manufacturers)
+
+@app.get("/equipment/portafilter_manufacturers/")
+async def send_all_portafilter_manufacturers() -> dict:
+    return {"manufacturers" : get_all_portafilter_manufacturers()}
+
+@app.get("/equipment/all_sellers/")
+async def send_all_equipment_sellers() -> dict:
+    return {"sellers" : get_all_equipment_sellers_list()}
+#######################################################################
+
+# Save coffee #########################################################
+@app.post("/coffee/purchases/save_new/")
+async def save_new_coffee_purchase(
+    purchase_data : CoffeeBeanPurchases,
+    session : SessionDep
+):
+    session.add(purchase_data)
+    session.commit()
+    session.refresh(purchase_data)
+
+    return {"message" : "Coffee purchase data saved successfully."}
+
+@app.post("/coffee/varieties/save_new/")
+async def save_new_coffee_variety(
+    variety_data : CoffeeBeanVarieties, 
+    session : SessionDep
+):
+    session.add(variety_data)
+    session.commit()
+    session.refresh(variety_data)
+
+    return {"message" : "Coffee variety data saved successfully."}
+#######################################################################
+
+# Equipment ###########################################################
+@app.post("/equipment/add_owned_equipment/")
+async def add_owned_equipment(
+    equipment_data : EquipmentOwnership,
+    session : SessionDep
+):
+    session.add(equipment_data)
+    session.commit()
+    session.refresh(equipment_data)
+
+    return {"message" : "Equipment ownership data saved successfully."}
+
+@app.post("/equipment/save_new_coffee_machine/")
+async def save_new_coffee_machine(
+    coffee_machine_data : CoffeeMachines,
+    session : SessionDep
+):
+    session.add(coffee_machine_data)
+    session.commit()
+    session.refresh(coffee_machine_data)
+
+    return {"message" : "Coffee machine data saved successfully."}
+
+@app.post("/equipment/save_new_grinder/")
+async def save_new_grinder(
+    grinder_data : Grinders,
+    session : SessionDep
+):
+    session.add(grinder_data)
+    session.commit()
+    session.refresh(grinder_data)
+
+    return {"message" : "Grinder data saved successfully."}
+
+@app.post("/equipment/save_new_portafilter/")
+async def save_new_portafilter(
+    portafilter_data : Portafilters,
+    session : SessionDep
+):
+    session.add(portafilter_data)
+    session.commit()
+    session.refresh(portafilter_data)
+
+    return {"message" : "Portafilter data saved successfully."}
+########################################################################
+

@@ -49,10 +49,10 @@ CREATE TABLE IF NOT EXISTS Grinders (
     burr_shape VARCHAR(255),
     burr_diameter_mm SMALLINT,
     burr_material VARCHAR(255),
-    min_fine_setting SMALLINT,
-    max_fine_setting SMALLINT,
-    min_coarse_setting SMALLINT,
-    max_coarse_setting SMALLINT, 
+    min_setting SMALLINT,
+    max_setting SMALLINT, 
+    min_espresso_range SMALLINT,
+    max_espresso_range SMALLINT,
     single_dose ENUM('yes', 'no'),
     PRIMARY KEY (id)
 );
@@ -61,6 +61,7 @@ CREATE TABLE IF NOT EXISTS Portafilters (
     id INT AUTO_INCREMENT NOT NULL, 
     manufacturer VARCHAR(255) NOT NULL,
     model_name VARCHAR(255) NOT NULL,
+    model_name_add VARCHAR(255),
     model_specification VARCHAR(255),
     model_serial VARCHAR(255) NOT NULL,
     basket_diameter_mm SMALLINT NOT NULL,
@@ -106,7 +107,6 @@ CREATE TABLE IF NOT EXISTS UserDefaults (
     leveler_used ENUM('yes', 'no') NOT NULL,
     puck_screen_used ENUM('yes', 'no') NOT NULL,
     puck_screen_thickness_mm DECIMAL(5, 2),
-    water_temp_c SMALLINT DEFAULT 93,
     setup_name VARCHAR(255) NOT NULL,
     PRIMARY KEY (user_id),
     FOREIGN KEY (coffee_machine_id) REFERENCES CoffeeMachines(id)

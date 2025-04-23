@@ -44,10 +44,10 @@ class Grinders(SQLModel, table = True):
     burr_shape : Optional[str] = Field(default = None)
     burr_diameter_mm : Optional[int] = Field(default = None)
     burr_material : Optional[str] = Field(default = None)
-    min_fine_setting : Optional[int] = Field(default = None)
-    max_fine_setting : Optional[int] = Field(default = None)
-    min_coarse_setting : Optional[int] = Field(default = None)
-    max_coarse_setting : Optional[int] = Field(default = None)
+    min_setting : Optional[int] = Field(default = None)
+    max_setting : Optional[int] = Field(default = None)
+    min_espresso_range : Optional[int] = Field(default = None)
+    max_espresso_range : Optional[int] = Field(default = None)
     single_dose : YesNo = Field(default = "no")
 
 class Portafilters(SQLModel, table = True):
@@ -55,6 +55,7 @@ class Portafilters(SQLModel, table = True):
     id : Optional[int] = Field(default = None, primary_key = True)
     manufacturer : str = Field(default = None)
     model_name : str = Field(default = None)
+    model_name_add : Optional[str] = Field(default = None)
     model_specification : Optional[str] = Field(default = None)
     model_serial : str = Field(default = None)
     basket_diameter_mm : int = Field(default = None)
@@ -86,7 +87,6 @@ class UserDefaults(SQLModel, table = True):
     leveler_used : YesNo = Field(default = "no")   
     puck_screen_used : YesNo = Field(default = "no")
     puck_screen_thickness_mm : Optional[float] = Field(default = None)
-    water_temp_c : Optional[int] = Field(default = 93)
     setup_name : Optional[str] = Field(default = None)
 
 class CoffeeBeanVarieties(SQLModel, table = True):
