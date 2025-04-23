@@ -100,13 +100,13 @@ else:
 left3, right3 = st.columns(2)
 
 with left3:
-    st.subheader("Serial number")
-    model_serial = st.text_input(
-        "Please enter the serial, manufacturer's or EAN number:",
+    st.subheader("Product identifier")
+    product_identifier = st.text_input(
+        "Please enter the manufacturer's number, EAN, etc.:",
         value = None
     )
-    if model_serial is None:
-        model_serial = "Not specified"
+    if product_identifier is None:
+        product_identifier = "Not specified"
 
 with right3:
     st.subheader("Specification")
@@ -303,7 +303,7 @@ if st.button("Save new equipment"):
             "model_name": model_name,
             "model_name_add": model_name_add,
             "model_specification": model_specification,
-            "model_serial": model_serial,
+            "product_identifier": product_identifier,
             "pump_pressure_bar": pump_pressure_bar,
             "pump_type": pump_type,
             "water_temp_control": water_temp_control,
@@ -319,7 +319,7 @@ if st.button("Save new equipment"):
             "model_name": model_name,
             "model_name_add": model_name_add,
             "model_specification": model_specification,
-            "model_serial": model_serial,
+            "product_identifier": product_identifier,
             "operation_type": operation_type,
             "burr_shape": burr_shape,
             "burr_diameter_mm": burr_diameter_mm,
@@ -338,7 +338,7 @@ if st.button("Save new equipment"):
             "model_name": model_name,
             "model_name_add": model_name_add,
             "model_specification": model_specification,
-            "model_serial": model_serial,
+            "product_identifier": product_identifier,
             "basket_diameter_mm": basket_diameter_mm,
             "pressurized": pressurized,
             "basket_shot_size": basket_shot_size,
