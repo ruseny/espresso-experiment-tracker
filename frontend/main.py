@@ -3,6 +3,14 @@ from src.session_state_vars import init_session_state_vars
 
 init_session_state_vars()
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+backend_host = os.getenv("BACKEND_HOST")
+backend_port = os.getenv("BACKEND_PORT")
+backend_url = f"http://{backend_host}:{backend_port}"
+st.session_state.backend_url = backend_url
+
 home_page = st.Page (
     "pages/home.py", 
     title = "Home", 

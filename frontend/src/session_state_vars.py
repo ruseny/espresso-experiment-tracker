@@ -1,6 +1,8 @@
 import streamlit as st
 
 def init_session_state_vars():
+    if "backend_url" not in st.session_state:
+        st.session_state.backend_url = None
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
     if "current_user_id" not in st.session_state:

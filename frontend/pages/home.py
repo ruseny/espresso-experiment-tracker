@@ -19,7 +19,7 @@ if not st.session_state.logged_in:
     if select_user and st.button("Check in"):
         current_user_id = select_user
         user_checkin_resp = requests.post(
-            f"http://localhost:8000/users/{current_user_id}"
+            f"{st.session_state.backend_url}/users/{current_user_id}"
         )
         if user_checkin_resp.status_code == 200:
             st.session_state.current_user_id = current_user_id
@@ -37,7 +37,7 @@ if st.session_state.logged_in:
 
     if st.button("Check out"):
         user_checkout_resp = requests.post(
-            "http://localhost:8000/users/0"
+            f"{st.session_state.backend_url}/users/0"
         )
         if user_checkout_resp.status_code == 200:
             st.session_state.current_user_id = None

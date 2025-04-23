@@ -172,7 +172,7 @@ if coffee_machine_id or grinder_id or portafilter_id:
 
     if st.button("Add item to owned equipment list"):
         add_equipment_resp = requests.post(
-            "http://localhost:8000/equipment/add_owned_equipment/",
+            f"{st.session_state.backend_url}/equipment/add_owned_equipment/",
             json = payload
         )
         show_response_feedback(add_equipment_resp)

@@ -4,7 +4,7 @@ from datetime import datetime
 from src.helpers import (
     get_user_defaults, 
     find_default_index,
-    get_equipment_data,
+    get_users_equipment_data,
     show_response_feedback
 )
 
@@ -13,13 +13,15 @@ st.write("Here you can edit your default setup that will be preselected for ente
 
 user_defaults = get_user_defaults(
     user_id = st.session_state.current_user_id, 
-    last_db_update = st.session_state.default_setup_db_update)
+    last_db_update = st.session_state.default_setup_db_update
+)
 
 with st.container(border = True):
 
-    equipment_dicts = get_equipment_data(
+    equipment_dicts = get_users_equipment_data(
         user_id = st.session_state.current_user_id,
-        last_db_update = st.session_state.equipment_db_update)
+        last_db_update = st.session_state.equipment_owned_db_update
+    )
     
     st.header("Equipment")
 
@@ -145,7 +147,7 @@ if user_defaults is None:
     st.write("No default setup found. Saving will create a new one.")
     if st.button ("Save new default settings", key = "save_post"):
         save_user_defaults_resp = requests.post(
-            f"http://localhost:8000/user_defaults",
+            f"{st.session_state.backend_url}/user_defaults",
             json = payload
         )
         show_response_feedback(save_user_defaults_resp)
@@ -155,7 +157,7 @@ else:
     st.write("Saving will update the existing default settings.")
     if st.button ("Save changes", key = "save_put"):
         save_user_defaults_resp = requests.put(
-            f"http://localhost:8000/user_defaults",
+            f"{st.session_state.backend_url}/user_defaults",
             json = payload
         )
         show_response_feedback(save_user_defaults_resp)

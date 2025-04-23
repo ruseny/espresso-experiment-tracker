@@ -236,7 +236,7 @@ payload = {
 
 if st.button("Save new coffee variety"):
     new_coffe_variety_resp = requests.post(
-        "http://localhost:8000/coffee/varieties/save_new/",
+        f"{st.session_state.backend_url}/coffee/varieties/save_new/",
         json = payload
     )
     show_response_feedback(new_coffe_variety_resp)

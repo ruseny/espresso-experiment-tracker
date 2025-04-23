@@ -73,7 +73,6 @@ with left2:
         max_value = date.today(), 
         disabled = today
     )
-st.write("Selected date : ", purchase_date)
     
 with right2:
     st.subheader("Purchased from")
@@ -135,7 +134,7 @@ payload = {
 
 if st.button("Save new purchase"):
     new_coffee_purchase_resp = requests.post(
-        "http://localhost:8000/coffee/purchases/save_new/",
+        f"{st.session_state.backend_url}/coffee/purchases/save_new/",
         json = payload
     )
     show_response_feedback(new_coffee_purchase_resp)

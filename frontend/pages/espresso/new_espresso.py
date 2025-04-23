@@ -20,7 +20,8 @@ with st.container(border = True):
 
     equipment_dicts = get_users_equipment_data(
         user_id = st.session_state.current_user_id,
-        last_db_update = st.session_state.equipment_db_update)
+        last_db_update = st.session_state.equipment_owned_db_update
+    )
     
     st.header("Equipment")
 
@@ -260,7 +261,7 @@ payload = {
 
 if st.button("Save espresso"):
     save_espresso_resp = requests.post(
-        f"http://localhost:8000/new_espresso/save_espresso",
+        f"{st.session_state.backend_url}/new_espresso/save_espresso",
         json = payload
     )
     show_response_feedback(save_espresso_resp)
@@ -281,7 +282,7 @@ if st.session_state.last_espresso_id:
         eval_submit = st.form_submit_button("Save evaluation")
     if eval_submit:
         eval_espresso_resp = requests.patch(
-            f"http://localhost:8000/new_espresso/save_espresso/evaluate",
+            f"{st.session_state.backend_url}/new_espresso/save_espresso/evaluate",
             json = {
                 "id" : st.session_state.last_espresso_id,
                 "evaluation_general" : evaluation_general,

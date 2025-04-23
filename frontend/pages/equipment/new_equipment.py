@@ -347,7 +347,7 @@ if st.button("Save new equipment"):
         endpoint = "equipment/save_new_portafilter/"
 
     new_equipment_resp = requests.post(
-        f"http://localhost:8000/{endpoint}",
+        f"{st.session_state.backend_url}/{endpoint}",
         json = payload
     )
     show_response_feedback(new_equipment_resp)
