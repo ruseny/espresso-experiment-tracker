@@ -6,7 +6,8 @@
 # It is assumed that the conda environment named "espresso" already 
 # exists and correctly configured.
 
-current_dir="$(dirname "$0")"
+file_path="$(realpath "$0")"
+current_dir="$(dirname "$file_path")"
 source "${current_dir}/.env"
 
 backend_path="${current_dir}/backend/main.py"
