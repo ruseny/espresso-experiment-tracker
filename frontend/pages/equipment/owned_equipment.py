@@ -4,8 +4,6 @@ from src.helpers import (
     get_all_coffee_machine_manufacturers_list, 
     get_all_grinders_dict,
     get_all_grinder_manufacturers_list,
-    get_all_portafilters_dict,
-    get_all_portafilter_manufacturers_list, 
     get_equipment_sellers_list, 
     show_response_feedback
 )
@@ -19,8 +17,7 @@ st.header("Equipment Type")
 
 equipment_type_map = {
     "coffee machine": "Coffee Machine",
-    "grinder": "Grinder",
-    "portafilter": "Portafilter"
+    "grinder": "Grinder"
 }
 
 equipment_type = st.segmented_control(
@@ -34,7 +31,6 @@ if equipment_type:
 
 coffee_machine_id = None
 grinder_id = None
-portafilter_id = None
 
 if equipment_type == "coffee machine":
     with st.expander("Filter by manufacturer"):
@@ -60,7 +56,7 @@ if equipment_type == "coffee machine":
         index = None
     )
 
-elif equipment_type == "grinder":
+if equipment_type == "grinder":
     with st.expander("Filter by manufacturer"):
         with st.form(key = "grinder_manufacturer_filter"):
             all_manufacturers = get_all_grinder_manufacturers_list(
@@ -84,31 +80,8 @@ elif equipment_type == "grinder":
         index = None
     )
 
-elif equipment_type == "portafilter":
-    with st.expander("Filter by manufacturer"):
-        with st.form(key = "portafilter_manufacturer_filter"):
-            all_manufacturers = get_all_portafilter_manufacturers_list(
-                last_db_update = st.session_state.portafilter_db_update
-            )["manufacturers"]
-            selected_manufacturers = st.multiselect(
-                "Select manufacturers to filter by:",
-                options = all_manufacturers,
-                default = all_manufacturers
-            )
-            submit_button = st.form_submit_button(label = "Apply filter")
-    
-    portafilter_dict = get_all_portafilters_dict(
-        manufacturers = selected_manufacturers,
-        last_db_update = st.session_state.portafilter_db_update
-    )
-    portafilter_id = st.selectbox(
-        "Please select a portafilter:",
-        options = portafilter_dict,
-        format_func = lambda x: portafilter_dict[x],
-        index = None
-    )
 
-if coffee_machine_id or grinder_id or portafilter_id:
+if coffee_machine_id or grinder_id:
     st.header("Purchase details")
     
     st.subheader("Purchased from")
@@ -117,6 +90,7 @@ if coffee_machine_id or grinder_id or portafilter_id:
     equipment_sellers = get_equipment_sellers_list(
         last_db_update = st.session_state.equipment_owned_db_update
     )["sellers"]
+    equipment_sellers = [x for x in equipment_sellers if x] 
 
     with right1:
         unknown_seller = st.toggle("Unknown seller")
@@ -142,12 +116,17 @@ if coffee_machine_id or grinder_id or portafilter_id:
 
     with left2:
         st.subheader("Purchase date")
-        purchase_date = st.date_input(
+        purchase_date_dt = st.date_input(
             "Please select a date",
             value = None,
             min_value = None,
             max_value = None
         )
+
+        if purchase_date_dt:
+            purchase_date = purchase_date_dt.strftime("%Y-%m-%d")
+        else:
+            purchase_date = None
 
     with right2:
         st.subheader("Purchase price")
@@ -164,7 +143,6 @@ if coffee_machine_id or grinder_id or portafilter_id:
         "equipment_type": equipment_type,
         "coffee_machine_id": coffee_machine_id,
         "grinder_id": grinder_id,
-        "portafilter_id": portafilter_id,
         "purchase_date": purchase_date,
         "purchased_from": purchased_from,
         "purchase_price_eur": purchase_price_eur

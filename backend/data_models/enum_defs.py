@@ -36,4 +36,3 @@ class OriginTypes(str, Enum):
 class EqpTypes(str, Enum):
     coffee_machine = "coffee machine"
     grinder = "grinder"
-    portafilter = "portafilter"

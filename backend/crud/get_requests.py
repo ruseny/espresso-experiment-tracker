@@ -59,29 +59,6 @@ def get_grinder_dict(user_id : int) -> dict:
         result = session.exec(query)
     return {row.id: row.product for row in result}
 
-def get_portafilter_dict(user_id : int) -> dict:
-    query = text("""
-        SELECT 
-            e.portafilter_id AS id,
-            CONCAT(
-                p.manufacturer, ' ', 
-                p.model_name, ' ', 
-                p.model_specification, ' ',
-                p.basket_shot_size
-                ) AS product
-        FROM EquipmentOwnership AS e
-        JOIN Portafilters AS p
-        ON e.portafilter_id = p.id
-        WHERE e.user_id = :user_id
-            AND e.equipment_type = 'portafilter'
-        ;
-    """).bindparams(
-        bindparam("user_id", user_id)
-    )
-    with Session(db_engine) as session:
-        result = session.exec(query)
-    return {row.id: row.product for row in result}
-
 def get_all_coffee_machine_manufacturers() -> list:
     query = text("""
         SELECT DISTINCT manufacturer
@@ -137,38 +114,6 @@ def get_all_grinders_dict(manufacturers = None) -> dict:
                 model_specification
                 ) AS product
         FROM Grinders
-        WHERE manufacturer IN :manufacturers
-        ;
-    """).bindparams(
-        bindparam("manufacturers", manufacturers, expanding = True)
-    )
-    with Session(db_engine) as session:
-        result = session.exec(query)
-    return {row.id: row.product for row in result}
-
-def get_all_portafilter_manufacturers() -> list:
-    query = text("""
-        SELECT DISTINCT manufacturer
-        FROM Portafilters
-        ;
-    """)
-    with Session(db_engine) as session:
-        result = session.exec(query)
-    return [row.manufacturer for row in result]
-
-def get_all_portafilters_dict(manufacturers = None) -> dict:
-    if manufacturers is None:
-        manufacturers = get_all_portafilter_manufacturers()
-    query = text("""
-        SELECT 
-            id,
-            CONCAT(
-                manufacturer, ' ', 
-                model_name, ' ', 
-                model_specification, ' ',
-                basket_shot_size
-                ) AS product
-        FROM Portafilters
         WHERE manufacturer IN :manufacturers
         ;
     """).bindparams(

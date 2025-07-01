@@ -39,11 +39,9 @@ async def check_in_user(user_id : int):
 async def send_equipment_data(user_id : int) -> dict:
     machine_dict = get_coffee_machine_dict(user_id)
     grinder_dict = get_grinder_dict(user_id)
-    portafilter_dict = get_portafilter_dict(user_id)
     return {
         "machine_dict" : machine_dict,
-        "grinder_dict" : grinder_dict,
-        "portafilter_dict" : portafilter_dict
+        "grinder_dict" : grinder_dict
     }
 
 @app.get("/coffee/producers/{user_id}")
@@ -182,16 +180,6 @@ async def send_all_grinders(
 async def send_all_grinder_manufacturers() -> dict:
     return {"manufacturers" : get_all_grinder_manufacturers()}
 
-@app.get("/equipment/portafilters/")
-async def send_all_portafilters(
-    manufacturers : Annotated[list, Query()] = None
-) -> dict:
-    return get_all_portafilters_dict(manufacturers = manufacturers)
-
-@app.get("/equipment/portafilter_manufacturers/")
-async def send_all_portafilter_manufacturers() -> dict:
-    return {"manufacturers" : get_all_portafilter_manufacturers()}
-
 @app.get("/equipment/all_sellers/")
 async def send_all_equipment_sellers() -> dict:
     return {"sellers" : get_all_equipment_sellers_list()}
@@ -255,15 +243,5 @@ async def save_new_grinder(
 
     return {"message" : "Grinder data saved successfully."}
 
-@app.post("/equipment/save_new_portafilter/")
-async def save_new_portafilter(
-    portafilter_data : Portafilters,
-    session : SessionDep
-) -> dict:
-    session.add(portafilter_data)
-    session.commit()
-    session.refresh(portafilter_data)
-
-    return {"message" : "Portafilter data saved successfully."}
 ########################################################################
 

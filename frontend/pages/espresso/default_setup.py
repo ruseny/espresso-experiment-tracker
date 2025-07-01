@@ -47,16 +47,42 @@ with st.container(border = True):
         )
     )
 
-    portafilter_id = st.selectbox(
-        "Portafilter",
-        options = equipment_dicts["portafilter_dict"],
-        format_func = lambda x: equipment_dicts["portafilter_dict"][x], 
-        index = find_default_index(
-            equipment_dicts["portafilter_dict"], 
-            user_defaults, 
-            "portafilter_id"
+with st.container(border = True):
+    st.header("Portafilter")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        basket_pressurized = st.radio(
+            "Pressurized basket?",
+            options = ["yes", "no"],
+            index = find_default_index(
+                ["yes", "no"], 
+                user_defaults, 
+                "basket_pressurized"
+            )
         )
-    )
+
+        basket_shot_size = st.radio(
+            "Basket shot size",
+            options = ["single", "double"],
+            index = find_default_index(
+                ["single", "double"], 
+                user_defaults, 
+                "basket_shot_size"
+            )
+        )   
+
+    with col2:
+        portafilter_spout = st.radio(
+            "Portafilter spout type",
+            options = ["single", "double", "bottomless"],
+            index = find_default_index(
+                ["single", "double", "bottomless"], 
+                user_defaults, 
+                "portafilter_spout"
+            )
+        )
 
 with st.container(border = True):
 
@@ -133,7 +159,9 @@ payload = {
     "user_id" : st.session_state.current_user_id,
     "grinder_id" : grinder_id,
     "coffee_machine_id" : coffee_machine_id,
-    "portafilter_id" : portafilter_id,
+    "basket_pressurized" : basket_pressurized,
+    "basket_shot_size" : basket_shot_size,
+    "portafilter_spout" : portafilter_spout,
     "wdt_used" : wdt_used,
     "tamping_method" : tamping_method,
     "tamping_weight_kg" : tamping_weight_kg,

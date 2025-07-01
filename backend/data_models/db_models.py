@@ -9,11 +9,14 @@ class Users(SQLModel, table = True):
     __tablename__ = "Users"
     id : Optional[int] = Field(default = None, primary_key = True)
     username : str = Field(default = None)
-    # password_hash : str = Field(default = None)
-    # email : str = Field(default = None)
+    password_hash : str = Field(default = None)
+    email : str = Field(default = None)
     first_name : Optional[str] = Field(default = None)
     last_name : Optional[str] = Field(default = None)
     date_of_birth : Optional[date] = Field(default = None)
+    street_address : Optional[str] = Field(default = None)
+    city : Optional[str] = Field(default = None)
+    postal_code : Optional[str] = Field(default = None)
     registration_datetime : datetime = Field(default_factory = datetime.now)
     user_type : UserTypes = Field(default = "developer")
 
@@ -50,19 +53,6 @@ class Grinders(SQLModel, table = True):
     max_espresso_range : Optional[int] = Field(default = None)
     single_dose : YesNo = Field(default = "no")
 
-class Portafilters(SQLModel, table = True):
-    __tablename__ = "Portafilters"
-    id : Optional[int] = Field(default = None, primary_key = True)
-    manufacturer : str = Field(default = None)
-    model_name : str = Field(default = None)
-    model_name_add : Optional[str] = Field(default = None)
-    model_specification : Optional[str] = Field(default = None)
-    product_identifier : str = Field(default = None)
-    basket_diameter_mm : int = Field(default = None)
-    pressurized : YesNo = Field(default = "no")
-    basket_shot_size : BasketSizes = Field(default = None)
-    spout : SpoutTypes = Field(default = None)
-
 class EquipmentOwnership(SQLModel, table = True):
     __tablename__ = "EquipmentOwnership"
     id : Optional[int] = Field(default = None, primary_key = True)
@@ -70,7 +60,6 @@ class EquipmentOwnership(SQLModel, table = True):
     equipment_type : EqpTypes = Field(default = None)
     coffee_machine_id : Optional[int] = Field(default = None, foreign_key = "CoffeeMachines.id")
     grinder_id : Optional[int] = Field(default = None, foreign_key = "Grinders.id")
-    portafilter_id : Optional[int] = Field(default = None, foreign_key = "Portafilters.id")
     purchase_date : Optional[date] = Field(default = None)
     purchased_from : Optional[str] = Field(default = None)
     purchase_price_eur : Optional[float] = Field(default = None)
@@ -80,7 +69,9 @@ class UserDefaults(SQLModel, table = True):
     user_id : int = Field(default = None, primary_key = True, foreign_key = "Users.id")
     coffee_machine_id : int = Field(default = 1, foreign_key = "CoffeeMachines.id")
     grinder_id : int = Field(default = 1, foreign_key = "Grinders.id")
-    portafilter_id : int = Field(default = 1, foreign_key = "Portafilters.id")
+    basket_pressurized : YesNo = Field(default = "no")
+    basket_shot_size : BasketSizes = Field(default = "single")
+    portafilter_spout : SpoutTypes = Field(default = "double")
     wdt_used : YesNo = Field(default = "no")
     tamping_method : OperationTypes = Field(default = "manual")
     tamping_weight_kg : Optional[float] = Field(default = None)
@@ -117,11 +108,13 @@ class CoffeeBeanPurchases(SQLModel, table = True):
 class EspressoExperiments(SQLModel, table = True):
     __tablename__ = "EspressoExperiments"
     id : Optional[int] = Field(default=None, primary_key=True)
-    user_id : int = Field(default = None, foreign_key = "Users.id")
     experiment_datetime : datetime = Field(default_factory = datetime.now)
+    user_id : int = Field(default = None, foreign_key = "Users.id")
     coffee_machine_id : int = Field(default = None, foreign_key = "CoffeeMachines.id")
     grinder_id : int = Field(default = None, foreign_key = "Grinders.id")
-    portafilter_id : int = Field(default = None, foreign_key = "Portafilters.id")
+    basket_pressurized : YesNo = Field(default = "no")
+    basket_shot_size : BasketSizes = Field(default = "single")
+    portafilter_spout : SpoutTypes = Field(default = "double")
     wdt_used : YesNo = Field(default = "no")
     tamping_method : OperationTypes = Field(default = "manual")
     tamping_weight_kg : Optional[float] = Field(default = None)

@@ -19,8 +19,6 @@ def init_session_state_vars():
         st.session_state.coffee_machine_db_update = None
     if "grinder_db_update" not in st.session_state:
         st.session_state.grinder_db_update = None
-    if "portafilter_db_update" not in st.session_state:
-        st.session_state.portafilter_db_update = None
     if "equipment_owned_db_update" not in st.session_state:
         st.session_state.equipment_owned_db_update = None
     if "coffee_variety_db_update" not in st.session_state:

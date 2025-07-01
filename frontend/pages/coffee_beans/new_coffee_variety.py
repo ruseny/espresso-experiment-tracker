@@ -10,16 +10,19 @@ st.title("Add new coffee variety")
 
 st.header("Details of new coffee variety")
 
-left1, right1 = st.columns(2)
+st.subheader("Producer")
 
-with left1:
-    st.subheader("Producer")
-
-    producers_list = get_all_producers_list(
-        last_db_update = st.session_state.coffee_variety_db_update
+producers_list = get_all_producers_list(
+    last_db_update = st.session_state.coffee_variety_db_update
     )["producers_list"]
 
-    if st.toggle("Producer not in the list?"):
+left1, right1 = st.columns(2)
+
+with right1:
+    producer_not_in_list = st.toggle("Producer not in the list?")
+
+with left1:
+    if producer_not_in_list:
         producer = st.text_input(
             "Please enter new producer name"
         )
@@ -28,12 +31,12 @@ with left1:
             "Please select the producer",
             options = producers_list
         )
-with right1:
-    st.subheader("Coffee variety name")
 
-    name = st.text_input(
-        "Please enter the coffee variety name"
-    )
+st.subheader("Coffee variety name")
+
+name = st.text_input(
+    "Please enter the coffee variety name"
+)
 
 left2, right2 = st.columns(2)
 

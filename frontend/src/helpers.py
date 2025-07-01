@@ -161,28 +161,6 @@ def get_all_grinder_manufacturers_list(
     return return_if_200(all_equipment_resp)
 
 @st.cache_data
-def get_all_portafilters_dict(
-    manufacturers : list = None,
-    last_db_update = st.session_state.portafilter_db_update,
-) -> dict:
-    all_equipment_resp = requests.get(
-        f"{st.session_state.backend_url}/equipment/portafilters/", 
-        params = {
-            "manufacturers" : manufacturers
-        }
-    )
-    return return_if_200(all_equipment_resp)
-
-@st.cache_data
-def get_all_portafilter_manufacturers_list(
-    last_db_update = st.session_state.portafilter_db_update,
-) -> dict:
-    all_equipment_resp = requests.get(
-        f"{st.session_state.backend_url}/equipment/portafilter_manufacturers/"
-    )
-    return return_if_200(all_equipment_resp)
-
-@st.cache_data
 def get_equipment_sellers_list(
     last_db_update = st.session_state.equipment_owned_db_update,
 ) -> dict:

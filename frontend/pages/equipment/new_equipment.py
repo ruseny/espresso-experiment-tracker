@@ -15,8 +15,7 @@ st.header("Equipment type")
 
 equipment_type_map = {
     "coffee machine": "Coffee Machine",
-    "grinder": "Grinder",
-    "portafilter": "Portafilter"
+    "grinder": "Grinder"
 }
 
 equipment_type = st.segmented_control(
@@ -36,13 +35,9 @@ if equipment_type == "coffee machine":
     all_manufacturers = get_all_coffee_machine_manufacturers_list(
         last_db_update = st.session_state.coffee_machine_db_update
     )["manufacturers"]
-elif equipment_type == "grinder":
+if equipment_type == "grinder":
     all_manufacturers = get_all_grinder_manufacturers_list(
         last_db_update = st.session_state.grinder_db_update
-    )["manufacturers"]
-elif equipment_type == "portafilter":
-    all_manufacturers = get_all_portafilter_manufacturers_list(
-        last_db_update = st.session_state.portafilter_db_update
     )["manufacturers"]
 
 left1, right1 = st.columns([0.67, 0.33], vertical_alignment = "bottom")
@@ -168,7 +163,7 @@ if equipment_type == "coffee machine":
             step = 1
         )
 
-elif equipment_type == "grinder":
+if equipment_type == "grinder":
 
     left4, right4 = st.columns(2)
     with left4:
@@ -256,45 +251,6 @@ elif equipment_type == "grinder":
             index = 1
         )
 
-elif equipment_type == "portafilter":
-    left4, right4 = st.columns(2)
-    with left4:
-        st.subheader("Basket diameter")
-        basket_diameter_mm = st.number_input(
-            "Please enter the basket diameter in mm:",
-            min_value = 45,
-            max_value = 65,
-            value = 58
-        )
-    with right4:
-        st.subheader("Classic or pressurized")
-        pressurized_map = {
-            "no" : "Classic",
-            "yes" : "Pressurized"
-        }
-        pressurized = st.radio(
-            "Is this a calssi or pressurized portafilter?",
-            options = pressurized_map,
-            format_func = lambda x: pressurized_map[x],
-            index = 0
-        )
-
-    left5, right5 = st.columns(2)
-    with left5:
-        st.subheader("Basket shot size")
-        basket_shot_size = st.radio(
-            "Please select the basket shot size:",
-            options = ["single", "double", "triple", "quadruple"],
-            index = 1
-        )
-    with right5:
-        st.subheader("Spout type")
-        spout = st.radio(
-            "Please select the spout type:",
-            options = ["single", "double", "bottomless"],
-            index = 1
-        )
-
 if st.button("Save new equipment"):
 
     if equipment_type == "coffee machine":
@@ -313,7 +269,7 @@ if st.button("Save new equipment"):
         }
         endpoint = "equipment/save_new_coffee_machine/"
 
-    elif equipment_type == "grinder":
+    if equipment_type == "grinder":
         payload = {
             "manufacturer": manufacturer,
             "model_name": model_name,
@@ -332,20 +288,6 @@ if st.button("Save new equipment"):
         }
         endpoint = "equipment/save_new_grinder/"
 
-    elif equipment_type == "portafilter":
-        payload = {
-            "manufacturer": manufacturer,
-            "model_name": model_name,
-            "model_name_add": model_name_add,
-            "model_specification": model_specification,
-            "product_identifier": product_identifier,
-            "basket_diameter_mm": basket_diameter_mm,
-            "pressurized": pressurized,
-            "basket_shot_size": basket_shot_size,
-            "spout": spout
-        }
-        endpoint = "equipment/save_new_portafilter/"
-
     new_equipment_resp = requests.post(
         f"{st.session_state.backend_url}/{endpoint}",
         json = payload
@@ -354,10 +296,8 @@ if st.button("Save new equipment"):
     if new_equipment_resp.status_code == 200:
         if equipment_type == "coffee machine":
             st.session_state.coffee_machine_db_update = datetime.now()
-        elif equipment_type == "grinder":
+        if equipment_type == "grinder":
             st.session_state.grinder_db_update = datetime.now()
-        elif equipment_type == "portafilter":
-            st.session_state.portafilter_db_update = datetime.now()
 
     
 
