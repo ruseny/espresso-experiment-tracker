@@ -8,9 +8,9 @@ from sqlmodel import select
 from typing import Annotated
 
 # Local module imports:
-from .dependencies.db_session import SessionDep
-from .data_models.db_models import *
-from .crud.get_requests import *
+from dependency_inj.db_session import SessionDep
+from data_models.db_models import *
+from crud.get_requests import *
 
 # Initialise app
 app = FastAPI()
@@ -244,4 +244,18 @@ async def save_new_grinder(
     return {"message" : "Grinder data saved successfully."}
 
 ########################################################################
+
+# Run app with uvicorn, set port and host ##############################
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    host = "127.0.0.1"
+    port = 8601
+
+    uvicorn.run("main:app", host=host, port=port, reload=True)
 

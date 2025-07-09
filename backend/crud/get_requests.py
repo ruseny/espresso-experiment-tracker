@@ -1,6 +1,6 @@
-from ..dependencies.db_session import db_engine
+from dependency_inj.db_session import db_engine
 from sqlmodel import Session, text, select, bindparam
-from ..data_models.db_models import UserDefaults
+from data_models.db_models import UserDefaults
 from datetime import date, timedelta
 
 def get_user_dict() -> dict:
