@@ -2,7 +2,6 @@ import streamlit as st
 from src.helpers import (
     get_all_coffee_machine_manufacturers_list, 
     get_all_grinder_manufacturers_list,
-    get_all_portafilter_manufacturers_list,
     show_response_feedback
 )
 import requests
@@ -246,7 +245,7 @@ if equipment_type == "grinder":
     with left8:
         st.subheader("Single dose")
         single_dose_used = st.radio(
-            "Is this a single dose grinder?",
+            "Does the grinder use a single dose hopper?",
             options = ["yes", "no"],
             index = 1
         )
