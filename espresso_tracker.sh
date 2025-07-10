@@ -13,7 +13,9 @@ source "${current_dir}/.env"
 backend_path="${current_dir}/backend/main.py"
 frontend_path="${current_dir}/frontend/main.py"
 
-conda run -n espresso python $backend_path &
+conda run -n espresso fastapi run \
+    --host $BACKEND_HOST --port $BACKEND_PORT \
+    $backend_path &
 conda run -n espresso streamlit run \
     $frontend_path \
     --server.port $FRONTEND_PORT &
