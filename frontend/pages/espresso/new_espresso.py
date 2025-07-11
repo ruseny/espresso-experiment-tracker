@@ -10,7 +10,7 @@ from src.helpers import (
     show_response_feedback
 )
 
-st.header("New Espresso")
+st.title("New Espresso")
 
 user_defaults = get_user_defaults(
     user_id = st.session_state.current_user_id, 
