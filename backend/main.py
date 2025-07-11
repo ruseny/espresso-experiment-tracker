@@ -106,7 +106,7 @@ async def update_user_defaults(
     return {"message" : "User defaults updated successfully."}
 ################################################################
 
-# Espresso ##########################################################
+# Espresso making ####################################################
 @app.post("/new_espresso/save_espresso/")
 async def save_new_espresso(
     espresso_data : EspressoExperiments, 
@@ -244,6 +244,11 @@ async def save_new_grinder(
     return {"message" : "Grinder data saved successfully."}
 
 ########################################################################
+
+# Lists from espresso data #########################################
+@app.get("/espresso_data/filter_default_range/{user_id}")
+async def send_filter_default_range(user_id : int) -> dict:
+    return get_espresso_filter_default_range(user_id)
 
 # Run app with uvicorn, set port and host ##############################
 

@@ -54,15 +54,15 @@ new_equipment = st.Page(
     icon = ":material/add_circle:"
 )
 
-explore_own_espresso = st.Page(
-    "pages/explore/own_espresso.py",
-    title = "Explore Own Data",
+explore_espresso_data = st.Page(
+    "pages/explore_predict/explore_data.py",
+    title = "Explore",
     icon = ":material/search:"
 )
 
-explore_all_espresso = st.Page(
-    "pages/explore/all_espresso.py",
-    title = "Explore All Data",
+predict_espresso = st.Page(
+    "pages/explore_predict/predict_espresso.py",
+    title = "Predict",
     icon = ":material/data_exploration:"
 )
 
@@ -76,7 +76,7 @@ if st.session_state.logged_in:
         {
             "Home" : [home_page], 
             "Making Espresso" : [new_espresso, default_setup], 
-            "Explore Espresso Data" : [explore_own_espresso, explore_all_espresso],
+            "Espresso Data" : [explore_espresso_data, predict_espresso],
             "Coffee Beans" : [coffee_purchase, new_coffee_variety], 
             "Equipment" : [owned_equipment, new_equipment]
         }

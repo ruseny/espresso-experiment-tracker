@@ -259,3 +259,46 @@ def get_users_last_experiment(user_id : int) -> dict:
         "id" : result.id,
         "experiment_datetime" : result.experiment_datetime
     }
+
+def get_espresso_filter_default_range(user_id : int) -> dict:
+    select_clause = """
+        DATE(MIN(experiment_datetime)) AS min_date,
+            DATE(MAX(experiment_datetime)) AS max_date,
+            MIN(grind_setting) AS min_grind_level,
+            MAX(grind_setting) AS max_grind_level,
+            MIN(dose_gr) AS min_dose,
+            MAX(dose_gr) AS max_dose,
+            MIN(extraction_time_sec) AS min_time,
+            MAX(extraction_time_sec) AS max_time,
+            MIN(yield_gr) AS min_yield,
+            MAX(yield_gr) AS max_yield,
+            MIN(ROUND(yield_gr/dose_gr, 2)) AS min_ratio,
+            MAX(ROUND(yield_gr/dose_gr, 2)) AS max_ratio, 
+            MIN(evaluation_general) AS min_evaluation_general,
+            MAX(evaluation_general) AS max_evaluation_general, 
+            MIN(evaluation_flavor) AS min_evaluation_flavor,
+            MAX(evaluation_flavor) AS max_evaluation_flavor, 
+            MIN(evaluation_body) AS min_evaluation_body,
+            MAX(evaluation_body) AS max_evaluation_body, 
+            MIN(evaluation_crema) AS min_evaluation_crema,
+            MAX(evaluation_crema) AS max_evaluation_crema
+    """
+    if user_id == 0:
+        query = text(f"""
+            SELECT {select_clause}
+            FROM EspressoExperiments
+            ;
+            """)
+    else:
+        query = text(f"""
+            SELECT {select_clause}
+            FROM EspressoExperiments
+            WHERE user_id = :user_id
+            ;
+        """).bindparams(
+            bindparam("user_id", user_id)
+        )
+        
+    with Session(db_engine) as session:
+        result = session.exec(query).one()
+    return result._asdict()  

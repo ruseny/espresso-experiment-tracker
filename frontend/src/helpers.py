@@ -168,3 +168,10 @@ def get_equipment_sellers_list(
         f"{st.session_state.backend_url}/equipment/all_sellers/"
     )
     return return_if_200(all_equipment_resp)
+
+@st.cache_data
+def get_espresso_filter_default_range(user_id : int) -> dict:
+    filter_default_range_resp = requests.get(
+        f"{st.session_state.backend_url}/espresso_data/filter_default_range/{user_id}"
+    )
+    return return_if_200(filter_default_range_resp)
