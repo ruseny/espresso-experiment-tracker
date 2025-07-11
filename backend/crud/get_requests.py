@@ -303,26 +303,22 @@ def get_espresso_filter_default_range(user_id : int) -> dict:
 def get_coffee_dict_from_espresso(user_id) -> dict:
     select_from_join = """
         SELECT 
-            v.id as id, 
+            id, 
             CONCAT(
-                v.producer, ' - ', v.name
+                name, " (", producer, ")"
             ) AS product
-        FROM CoffeeBeanPurchases AS p
-        JOIN CoffeeBeanVarieties AS v
-        ON p.variety_id = v.id
-        WHERE p.id IN (
-            SELECT DISTINCT e.coffee_bean_purchase_id
+        FROM CoffeeBeanVarieties
+        WHERE id IN (
+            SELECT DISTINCT p.variety_id
             FROM EspressoExperiments AS e
-        )
+            JOIN CoffeeBeanPurchases AS p
+            ON e.coffee_bean_purchase_id = p.id
     """
     if user_id == 0:
-        query = text(f"{select_from_join} ORDER BY product ASC;")
+        query = text(f"{select_from_join});")
     else:
         query = text(f"""
-            {select_from_join}
-                AND p.user_id = :user_id
-            ORDER BY product ASC
-            ;
+            {select_from_join} AND p.user_id = :user_id);
         """).bindparams(
             bindparam("user_id", user_id)
         )
