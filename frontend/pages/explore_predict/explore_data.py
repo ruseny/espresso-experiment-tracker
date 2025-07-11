@@ -1,6 +1,7 @@
 import streamlit as st
 from src.helpers import (
-    get_espresso_filter_default_range
+    get_espresso_filter_default_range, 
+    get_coffee_dict_from_espresso
 )
 
 st.title("Explore Espresso Data")
@@ -20,7 +21,8 @@ else:
     user_id = 0
 
 default_range_dict = get_espresso_filter_default_range(user_id)
-st.write(default_range_dict)
+default_coffee_dict = get_coffee_dict_from_espresso(user_id)
+st.write(default_coffee_dict)
 
 with st.container(border = True):
     st.header("Filters")
@@ -41,7 +43,9 @@ with st.container(border = True):
 
     coffee_beans = st.multiselect(
         "Coffee beans",
-        options = []
+        options = default_coffee_dict, 
+        default = default_coffee_dict, 
+        format_func = lambda x: default_coffee_dict[x]
     )
 
     with st.expander("Equipment selection"):

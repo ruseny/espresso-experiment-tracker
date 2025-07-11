@@ -261,8 +261,9 @@ def get_users_last_experiment(user_id : int) -> dict:
     }
 
 def get_espresso_filter_default_range(user_id : int) -> dict:
-    select_clause = """
-        DATE(MIN(experiment_datetime)) AS min_date,
+    select_from = """
+        SELECT
+            DATE(MIN(experiment_datetime)) AS min_date,
             DATE(MAX(experiment_datetime)) AS max_date,
             MIN(grind_setting) AS min_grind_level,
             MAX(grind_setting) AS max_grind_level,
@@ -282,23 +283,49 @@ def get_espresso_filter_default_range(user_id : int) -> dict:
             MAX(evaluation_body) AS max_evaluation_body, 
             MIN(evaluation_crema) AS min_evaluation_crema,
             MAX(evaluation_crema) AS max_evaluation_crema
+        FROM EspressoExperiments
     """
     if user_id == 0:
-        query = text(f"""
-            SELECT {select_clause}
-            FROM EspressoExperiments
-            ;
-            """)
+        query = text(f"{select_from};")
     else:
         query = text(f"""
-            SELECT {select_clause}
-            FROM EspressoExperiments
+            {select_from}
             WHERE user_id = :user_id
             ;
         """).bindparams(
             bindparam("user_id", user_id)
         )
-        
+
     with Session(db_engine) as session:
         result = session.exec(query).one()
     return result._asdict()  
+
+def get_coffee_dict_from_espresso(user_id) -> dict:
+    select_from_join = """
+        SELECT 
+            v.id as id, 
+            CONCAT(
+                v.producer, ' - ', v.name
+            ) AS product
+        FROM CoffeeBeanPurchases AS p
+        JOIN CoffeeBeanVarieties AS v
+        ON p.variety_id = v.id
+        WHERE p.id IN (
+            SELECT DISTINCT e.coffee_bean_purchase_id
+            FROM EspressoExperiments AS e
+        )
+    """
+    if user_id == 0:
+        query = text(f"{select_from_join} ORDER BY product ASC;")
+    else:
+        query = text(f"""
+            {select_from_join}
+                AND p.user_id = :user_id
+            ORDER BY product ASC
+            ;
+        """).bindparams(
+            bindparam("user_id", user_id)
+        )
+    with Session(db_engine) as session:
+        result = session.exec(query)
+    return {row.id: row.product for row in result}

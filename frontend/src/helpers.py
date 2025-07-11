@@ -175,3 +175,10 @@ def get_espresso_filter_default_range(user_id : int) -> dict:
         f"{st.session_state.backend_url}/espresso_data/filter_default_range/{user_id}"
     )
     return return_if_200(filter_default_range_resp)
+
+@st.cache_data
+def get_coffee_dict_from_espresso(user_id : int) -> dict:
+    coffee_dict_resp = requests.get(
+        f"{st.session_state.backend_url}/espresso_data/coffee_list/{user_id}"
+    )
+    return return_if_200(coffee_dict_resp)

@@ -250,6 +250,10 @@ async def save_new_grinder(
 async def send_filter_default_range(user_id : int) -> dict:
     return get_espresso_filter_default_range(user_id)
 
+@app.get("/espresso_data/coffee_list/{user_id}")
+async def send_coffee_dict_from_espresso(user_id : int) -> dict:
+    return get_coffee_dict_from_espresso(user_id) 
+
 # Run app with uvicorn, set port and host ##############################
 
 if __name__ == "__main__":
