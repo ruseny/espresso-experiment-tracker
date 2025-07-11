@@ -54,6 +54,18 @@ new_equipment = st.Page(
     icon = ":material/add_circle:"
 )
 
+explore_own_espresso = st.Page(
+    "pages/explore/own_espresso.py",
+    title = "Explore Own Data",
+    icon = ":material/search:"
+)
+
+explore_all_espresso = st.Page(
+    "pages/explore/all_espresso.py",
+    title = "Explore All Data",
+    icon = ":material/data_exploration:"
+)
+
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 if "current_user" not in st.session_state:
@@ -64,6 +76,7 @@ if st.session_state.logged_in:
         {
             "Home" : [home_page], 
             "Making Espresso" : [new_espresso, default_setup], 
+            "Explore Espresso Data" : [explore_own_espresso, explore_all_espresso],
             "Coffee Beans" : [coffee_purchase, new_coffee_variety], 
             "Equipment" : [owned_equipment, new_equipment]
         }
