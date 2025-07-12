@@ -182,3 +182,17 @@ def get_coffee_dict_from_espresso(user_id : int) -> dict:
         f"{st.session_state.backend_url}/espresso_data/coffee_list/{user_id}"
     )
     return return_if_200(coffee_dict_resp)
+
+@st.cache_data
+def get_machine_dict_from_espresso(user_id : int) -> dict:
+    machine_dict_resp = requests.get(
+        f"{st.session_state.backend_url}/espresso_data/machine_list/{user_id}"
+    )
+    return return_if_200(machine_dict_resp)
+
+@st.cache_data
+def get_grinder_dict_from_espresso(user_id : int) -> dict:
+    grinder_dict_resp = requests.get(
+        f"{st.session_state.backend_url}/espresso_data/grinder_list/{user_id}"
+    )
+    return return_if_200(grinder_dict_resp)

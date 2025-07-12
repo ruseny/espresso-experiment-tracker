@@ -300,8 +300,8 @@ def get_espresso_filter_default_range(user_id : int) -> dict:
         result = session.exec(query).one()
     return result._asdict()  
 
-def get_coffee_dict_from_espresso(user_id) -> dict:
-    select_from_join = """
+def get_coffee_dict_from_espresso(user_id : int) -> dict:
+    select_from = """
         SELECT 
             id, 
             CONCAT(
@@ -315,13 +315,69 @@ def get_coffee_dict_from_espresso(user_id) -> dict:
             ON e.coffee_bean_purchase_id = p.id
     """
     if user_id == 0:
-        query = text(f"{select_from_join});")
+        query = text(f"{select_from});")
     else:
         query = text(f"""
-            {select_from_join} AND p.user_id = :user_id);
+            {select_from} WHERE e.user_id = :user_id);
         """).bindparams(
             bindparam("user_id", user_id)
         )
     with Session(db_engine) as session:
         result = session.exec(query)
     return {row.id: row.product for row in result}
+
+def get_machine_dict_from_espresso(user_id : int) -> dict:
+    select_from = """
+        SELECT 
+            id, 
+            CONCAT(
+                manufacturer, ' ', 
+                model_name, ' ', 
+                model_name_add, ' ', 
+                model_specification
+            ) AS product
+        FROM CoffeeMachines
+        WHERE id IN (
+            SELECT DISTINCT coffee_machine_id
+            FROM EspressoExperiments
+    """
+    if user_id == 0:
+        query = text(f"{select_from});")
+    else:
+        query = text(f"""
+            {select_from} WHERE user_id = :user_id);
+        """).bindparams(
+            bindparam("user_id", user_id)
+        )
+    with Session(db_engine) as session:
+        result = session.exec(query)
+    return {row.id: row.product for row in result}
+
+def get_grinder_dict_from_espresso(user_id : int) -> dict:
+    select_from = """
+        SELECT 
+            id, 
+            CONCAT(
+                manufacturer, ' ', 
+                model_name, ' ', 
+                model_name_add, ' ', 
+                model_specification
+            ) AS product, 
+            min_espresso_range, 
+            max_espresso_range
+        FROM Grinders
+        WHERE id IN (
+            SELECT DISTINCT grinder_id
+            FROM EspressoExperiments
+    """
+    if user_id == 0:
+        query = text(f"{select_from});")
+    else:
+        query = text(f"""
+            {select_from} WHERE user_id = :user_id);
+        """).bindparams(
+            bindparam("user_id", user_id)
+        )
+    with Session(db_engine) as session:
+        result = session.exec(query)
+    return {row.id: [row.product, row.min_espresso_range, row.max_espresso_range] for row in result}
