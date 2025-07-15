@@ -271,8 +271,8 @@ if __name__ == "__main__":
 
     load_dotenv()
 
-    host = "127.0.0.1"
-    port = 8601
+    host = os.getenv("BACKEND_HOST")
+    port = int(os.getenv("BACKEND_PORT"))
 
     uvicorn.run("main:app", host=host, port=port, reload=True)
 
