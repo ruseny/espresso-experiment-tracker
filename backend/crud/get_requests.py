@@ -381,3 +381,55 @@ def get_grinder_dict_from_espresso(user_id : int) -> dict:
     with Session(db_engine) as session:
         result = session.exec(query)
     return {row.id: [row.product, row.min_espresso_range, row.max_espresso_range] for row in result}
+
+def get_selected_espresso_data(user_id : int, applied_filters : dict = None) -> dict:
+    select_from = """
+        SELECT *
+        FROM EspressoExperiments
+        WHERE user_id = :user_id
+        """
+    if bool(not applied_filters):
+        query = text(f"{select_from};").bindparams(
+            bindparam("user_id", user_id)
+        )
+    else:
+        query = text(f"""
+            {select_from}
+            AND grind_setting BETWEEN :min_grind_level AND :max_grind_level
+            AND dose_gr BETWEEN :min_dose AND :max_dose
+            AND extraction_time_sec BETWEEN :min_time AND :max_time
+            AND yield_gr BETWEEN :min_yield AND :max_yield
+            AND ROUND(yield_gr/dose_gr, 2) BETWEEN :min_ratio AND :max_ratio
+            AND evaluation_general BETWEEN :min_evaluation_general AND :max_evaluation_general
+            AND evaluation_flavor BETWEEN :min_evaluation_flavor AND :max_evaluation_flavor
+            AND evaluation_body BETWEEN :min_evaluation_body AND :max_evaluation_body
+            AND evaluation_crema BETWEEN :min_evaluation_crema AND :max_evaluation_crema
+            ;
+        """).bindparams(
+            bindparam("user_id", user_id),
+            bindparam("min_grind_level", applied_filters["grind_level"][0]),
+            bindparam("max_grind_level", applied_filters["grind_level"][1]),
+            bindparam("min_dose", applied_filters["dose"][0]),
+            bindparam("max_dose", applied_filters["dose"][1]),
+            bindparam("min_time", applied_filters["extraction_time"][0]),
+            bindparam("max_time", applied_filters["extraction_time"][1]),
+            bindparam("min_yield", applied_filters["yield"][0]),
+            bindparam("max_yield", applied_filters["yield"][1]),
+            bindparam("min_ratio", applied_filters["ratio"][0]),
+            bindparam("max_ratio", applied_filters["ratio"][1]),
+            bindparam("min_evaluation_general", applied_filters["evaluation_general"][0]),
+            bindparam("max_evaluation_general", applied_filters["evaluation_general"][1]),
+            bindparam("min_evaluation_flavor", applied_filters["evaluation_flavor"][0]),
+            bindparam("max_evaluation_flavor", applied_filters["evaluation_flavor"][1]),
+            bindparam("min_evaluation_body", applied_filters["evaluation_body"][0]),
+            bindparam("max_evaluation_body", applied_filters["evaluation_body"][1]),
+            bindparam("min_evaluation_crema", applied_filters["evaluation_crema"][0]),
+            bindparam("max_evaluation_crema", applied_filters["evaluation_crema"][1])
+        )
+
+    with Session(db_engine) as session:
+        result = session.exec(query).fetchall()
+    return {
+        "columns": result[0]._fields, 
+            "data": [tuple(row._asdict().values()) for row in result]
+    } if result else {"columns": [], "data": []}

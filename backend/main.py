@@ -262,6 +262,12 @@ async def send_machine_dict_from_espresso(user_id : int) -> dict:
 async def send_grinder_dict_from_espresso(user_id : int) -> dict:
     return get_grinder_dict_from_espresso(user_id)
 
+@app.get("/espresso_data/selected_data/{user_id}")
+async def send_selected_espresso_data(user_id : int, 
+    applied_filters : dict = None
+) -> dict:
+    return get_selected_espresso_data(user_id, applied_filters)
+
 # Run app with uvicorn, set port and host ##############################
 
 if __name__ == "__main__":

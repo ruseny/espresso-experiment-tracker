@@ -3,12 +3,13 @@ from src.helpers import (
     get_espresso_filter_default_range, 
     get_coffee_dict_from_espresso, 
     get_machine_dict_from_espresso, 
-    get_grinder_dict_from_espresso
+    get_grinder_dict_from_espresso, 
+    get_espresso_data
 )
 
 st.title("Explore Espresso Data")
 
-st.header("Data selection")
+st.header("Select data")
 own_or_all = st.segmented_control(
     "Would you like to explore your own data or all users' data?",
     options = ["Your own data", "All users' data"]
@@ -30,11 +31,8 @@ if apply_filters:
     default_machine_dict = get_machine_dict_from_espresso(user_id)
     default_grinder_dict = get_grinder_dict_from_espresso(user_id)
 
-    with st.container(border = True):
+    with st.form("filters", border = True):
         st.header("Filters")
-
-        def mark_changed_filter(name):
-            st.session_state.espresso_data_applied_filters[name] = True
 
         with st.expander("Dates"):
             left1, right1 = st.columns([0.5, 0.5])
@@ -44,30 +42,27 @@ if apply_filters:
                     value = default_range_dict["min_date"],
                     min_value = default_range_dict["min_date"],
                     max_value = default_range_dict["max_date"],
-                    help = "Select the start date of the data.", 
-                    on_change = mark_changed_filter, 
-                    kwargs = {"name": "date_from"}
+                    help = "Select the start date of the data."
                 )
+                date_from = date_from.strftime("%Y-%m-%d")
             with right1:
                 date_until = st.date_input(
                     "Until",
                     value = default_range_dict["max_date"],
                     min_value = default_range_dict["min_date"],
                     max_value = default_range_dict["max_date"],
-                    help = "Select the end date of the data.", 
-                    on_change = mark_changed_filter, 
-                    kwargs = {"name": "date_until"}
+                    help = "Select the end date of the data."
                 )
+                date_until = date_until.strftime("%Y-%m-%d")
 
         with st.expander("Coffee selection"):
             coffee_beans = st.multiselect(
                 "Coffee beans",
                 options = default_coffee_dict, 
                 default = default_coffee_dict, 
-                format_func = lambda x: default_coffee_dict[x], 
-                on_change = mark_changed_filter,
-                kwargs = {"name": "coffee_beans"}
+                format_func = lambda x: default_coffee_dict[x]
             )
+            coffee_beans = [int(i) for i in coffee_beans]
 
         with st.expander("Equipment selection"):
             left2, right2 = st.columns([0.5, 0.5])
@@ -76,72 +71,56 @@ if apply_filters:
                     "Coffee machine",
                     options = default_machine_dict, 
                     default = default_machine_dict, 
-                    format_func = lambda x: default_machine_dict[x], 
-                    on_change = mark_changed_filter,
-                    kwargs = {"name": "coffee_machine"}
+                    format_func = lambda x: default_machine_dict[x]
                 )
-                basket_pressurized = st.radio(
+                coffee_machine = [int(i) for i in coffee_machine]
+                basket_pressurized = st.multiselect(
                     "Pressurized basket",
                     options = ["yes", "no"], 
-                    index = None, 
-                    on_change = mark_changed_filter,
-                    kwargs = {"name": "basket_pressurized"}
+                    default = ["yes", "no"],
                 )
-                portafilter_spout = st.radio(
+                portafilter_spout = st.multiselect(
                     "Portafilter spout type",
                     options = ["single", "double", "bottomless"], 
-                    index = None, 
-                    on_change = mark_changed_filter,
-                    kwargs = {"name": "portafilter_spout"}
+                    default = ["single", "double", "bottomless"],
                 )        
             with right2:
                 grinder = st.multiselect(
                     "Grinder",
                     options = default_grinder_dict, 
                     default = default_grinder_dict, 
-                    format_func = lambda x: default_grinder_dict[x][0], 
-                    on_change = mark_changed_filter,
-                    kwargs = {"name": "grinder"}
+                    format_func = lambda x: default_grinder_dict[x][0]
                 )
-                basket_shot_size = st.radio(
+                grinder = [int(i) for i in grinder]
+                basket_shot_size = st.multiselect(
                     "Basket shot size",
                     options = ["single", "double"], 
-                    index = None, 
-                    on_change = mark_changed_filter,
-                    kwargs = {"name": "basket_shot_size"}
+                    default = ["single", "double"],
                 )
 
         with st.expander("Preparation methods"):
             left3, right3 = st.columns([0.5, 0.5])
             with left3:
-                wdt_used = st.radio(
+                wdt_used = st.multiselect(
                     "WDT used",
                     options = ["yes", "no"], 
-                    index = None, 
-                    on_change = mark_changed_filter,
-                    kwargs = {"name": "wdt_used"}
+                    default = ["yes", "no"],
                 )
-                puck_screen_used = st.radio(
+                puck_screen_used = st.multiselect(
                     "Puck screen used",
                     options = ["yes", "no"], 
-                    index = None, 
-                    on_change = mark_changed_filter,
-                    kwargs = {"name": "puck_screen_used"}
+                    default = ["yes", "no"],
                 )       
             with right3:
-                tamping_method = st.radio(
+                tamping_method = st.multiselect(
                     "Tamping method",
                     options = ["manual", "automatic"], 
-                    index = None, 
-                    on_change = mark_changed_filter,
-                    kwargs = {"name": "tamping_method"}
+                    default = ["manual", "automatic"],
                 )
-                leveler_used = st.radio(
+                leveler_used = st.multiselect(
                     "Leveler used",
                     options = ["yes", "no"], 
-                    index = None, 
-                    on_change = mark_changed_filter,
-                    kwargs = {"name": "leveler_used"}
+                    default = ["yes", "no"],
                 )
         
         with st.expander("Extraction parameters"):
@@ -158,9 +137,7 @@ if apply_filters:
                     default_range_dict["min_grind_level"], 
                     default_range_dict["max_grind_level"]
                 ),
-                format_func = lambda x: f"{x:.1f}", 
-                on_change = mark_changed_filter,
-                kwargs = {"name": "grind_level"}
+                format_func = lambda x: f"{x:.1f}"
             )
             
             for g in default_grinder_dict:
@@ -182,9 +159,7 @@ if apply_filters:
                 value = (
                     float(default_range_dict["min_dose"]), 
                     float(default_range_dict["max_dose"])
-                ), 
-                on_change = mark_changed_filter,
-                kwargs = {"name": "dose_gr"}
+                )
             )
 
             st.subheader("Extraction time (seconds)")
@@ -199,9 +174,7 @@ if apply_filters:
                     default_range_dict["min_time"], 
                     default_range_dict["max_time"]
                 ),
-                format_func = lambda x: f"{x} sec", 
-                on_change = mark_changed_filter,
-                kwargs = {"name": "extr_time"}
+                format_func = lambda x: f"{x} sec"
             )
 
             st.subheader("Yield (gr)")
@@ -215,9 +188,7 @@ if apply_filters:
                 value = (
                     float(default_range_dict["min_yield"]), 
                     float(default_range_dict["max_yield"])
-                ), 
-                on_change = mark_changed_filter,
-                kwargs = {"name": "yield_gr"}
+                )
             )
 
             st.subheader("Extraction ratio")
@@ -232,9 +203,7 @@ if apply_filters:
                     float(default_range_dict["min_ratio"]), 
                     float(default_range_dict["max_ratio"])
                 ),
-                format_func = lambda x: f"{x:.2f}", 
-                on_change = mark_changed_filter,
-                kwargs = {"name": "extr_ratio"}
+                format_func = lambda x: f"{x:.2f}"
             )
 
         with st.expander("Evaluation"):
@@ -247,9 +216,7 @@ if apply_filters:
                 value = (
                     default_range_dict["min_evaluation_general"], 
                     default_range_dict["max_evaluation_general"]
-                ), 
-                on_change = mark_changed_filter,
-                kwargs = {"name": "general_evaluation"}
+                )
             )
 
             st.subheader("Evaluation of flavor")
@@ -260,9 +227,7 @@ if apply_filters:
                 value = (
                     default_range_dict["min_evaluation_flavor"], 
                     default_range_dict["max_evaluation_flavor"]
-                ), 
-                on_change = mark_changed_filter,
-                kwargs = {"name": "flavor_evaluation"}
+                )
             )
 
             st.subheader("Evaluation of body")
@@ -273,9 +238,7 @@ if apply_filters:
                 value = (
                     default_range_dict["min_evaluation_body"], 
                     default_range_dict["max_evaluation_body"]
-                ), 
-                on_change = mark_changed_filter,
-                kwargs = {"name": "body_evaluation"}
+                )
             )
 
             st.subheader("Evaluation of crema")
@@ -286,14 +249,50 @@ if apply_filters:
                 value = (
                     default_range_dict["min_evaluation_crema"], 
                     default_range_dict["max_evaluation_crema"]
-                ), 
-                on_change = mark_changed_filter,
-                kwargs = {"name": "crema_evaluation"}
+                )
             )
+        
+        filters_applied = st.form_submit_button("Apply filters")
 
-    applied_filters = {}
-    for filter_name in st.session_state.espresso_data_applied_filters:
-        if st.session_state.espresso_data_applied_filters[filter_name]:
-            applied_filters[filter_name] = eval(filter_name)
+    applied_filters = None
+    if filters_applied:
+        applied_filters = {
+            "date": [date_from, date_until],
+            "coffee_beans": coffee_beans,
+            "coffee_machine": coffee_machine,
+            "basket_pressurized": basket_pressurized,
+            "portafilter_spout": portafilter_spout,
+            "grinder": grinder,
+            "basket_shot_size": basket_shot_size,
+            "wdt_used": wdt_used,
+            "puck_screen_used": puck_screen_used,
+            "tamping_method": tamping_method,
+            "leveler_used": leveler_used,
+            "grind_level": grind_level,
+            "dose_gr": dose_gr,
+            "extr_time": extr_time,
+            "yield_gr": yield_gr,
+            "extr_ratio": extr_ratio,
+            "general_evaluation": general_evaluation,
+            "flavor_evaluation": flavor_evaluation,
+            "body_evaluation": body_evaluation,
+            "crema_evaluation": crema_evaluation
+        }
+else:
+    applied_filters = None
+
+st.header("Analyze data")
+explore_type = st.segmented_control(
+    "What would you like to do with the data?",
+    options = ["Dashboard", "See experiments"])
+
+if explore_type is "Dashboard":
+    selected_data = get_espresso_data(user_id, applied_filters)
+    st.write(selected_data)
+    st.write(len(selected_data["data"]), "experiments found.")
+
+    import pandas as pd
+    df = pd.DataFrame(selected_data["data"], columns=selected_data["columns"])
+    st.dataframe(df)
 
 
