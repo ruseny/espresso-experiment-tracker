@@ -198,11 +198,8 @@ def get_grinder_dict_from_espresso(user_id : int) -> dict:
     return return_if_200(grinder_dict_resp)
 
 @st.cache_data
-def get_espresso_data(user_id : int, applied_filters : dict = None) -> dict:
+def get_users_espresso_data(user_id : int) -> dict:
     espresso_data_resp = requests.get(
-        f"{st.session_state.backend_url}/espresso_data/selected_data/{user_id}",
-        params = {
-            "applied_filters" : applied_filters
-        }
+        f"{st.session_state.backend_url}/espresso_data/selected_data/{user_id}"
     )
     return return_if_200(espresso_data_resp)

@@ -25,3 +25,5 @@ def init_session_state_vars():
         st.session_state.coffee_variety_db_update = None
     if "coffee_purchase_db_update" not in st.session_state:
         st.session_state.coffee_purchase_db_update = None
+    if "espresso_data_filters_applied" not in st.session_state:
+        st.session_state.espresso_data_filters_applied = False

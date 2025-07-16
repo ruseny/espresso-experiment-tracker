@@ -25,45 +25,39 @@ new_espresso = st.Page(
 )
 
 default_setup = st.Page(
-    "pages/espresso/default_setup.py", 
+    "pages/inventory/default_setup.py", 
     title = "Default Setup", 
     icon = ":material/settings:"
 )
 
 coffee_purchase = st.Page(
-    "pages/coffee_beans/coffee_purchase.py", 
-    title = "Coffee Purchase", 
+    "pages/inventory/coffee_purchase.py", 
+    title = "Coffee Purchases", 
     icon = ":material/shopping_bag:"
 )
 
 new_coffee_variety = st.Page(
-    "pages/coffee_beans/new_coffee_variety.py", 
-    title = "New Coffee Variety", 
-    icon = ":material/add_circle:"
+    "pages/selection/new_coffee_variety.py", 
+    title = "Add Coffee Variety", 
+    icon = ":material/shopping_bag:"
 )
 
 owned_equipment = st.Page(
-    "pages/equipment/owned_equipment.py",
-    title = "Owned Equipment",
+    "pages/selection/owned_equipment.py",
+    title = "Equipment Purchases",
     icon = ":material/coffee_maker:"
 )
 
 new_equipment = st.Page(
-    "pages/equipment/new_equipment.py",
-    title = "New Equipment",
-    icon = ":material/add_circle:"
+    "pages/inventory/new_equipment.py",
+    title = "Add Equipment",
+    icon = ":material/coffee_maker:"
 )
 
 explore_espresso_data = st.Page(
-    "pages/explore_predict/explore_data.py",
-    title = "Explore",
+    "pages/espresso/explore_data.py",
+    title = "Explore Espresso Data",
     icon = ":material/search:"
-)
-
-predict_espresso = st.Page(
-    "pages/explore_predict/predict_espresso.py",
-    title = "Predict",
-    icon = ":material/data_exploration:"
 )
 
 if "logged_in" not in st.session_state:
@@ -75,10 +69,9 @@ if st.session_state.logged_in:
     entry = st.navigation(
         {
             "Home" : [home_page], 
-            "Making Espresso" : [new_espresso, default_setup], 
-            "Espresso Data" : [explore_espresso_data, predict_espresso],
-            "Coffee Beans" : [coffee_purchase, new_coffee_variety], 
-            "Equipment" : [owned_equipment, new_equipment]
+            "Espresso" : [new_espresso, explore_espresso_data], 
+            "Inventory" : [coffee_purchase, owned_equipment, default_setup],
+            "Selection" : [new_coffee_variety, new_equipment]
         }
     )
 else:

@@ -1,31 +1,38 @@
 import streamlit as st
+import pandas as pd
 from src.helpers import (
     get_espresso_filter_default_range, 
     get_coffee_dict_from_espresso, 
     get_machine_dict_from_espresso, 
     get_grinder_dict_from_espresso, 
-    get_espresso_data
+    get_users_espresso_data
 )
 
 st.title("Explore Espresso Data")
 
-st.header("Select data")
-own_or_all = st.segmented_control(
-    "Would you like to explore your own data or all users' data?",
-    options = ["Your own data", "All users' data"]
-)
+# get the data from db, convert to df, and correct data types
+user_id = st.session_state.current_user_id
+user_data = get_users_espresso_data(user_id)
+full_df = pd.DataFrame(user_data["data"], columns=user_data["columns"])
+full_df["experiment_date"] = pd.to_datetime(full_df["experiment_date"]).dt.date
+full_df["experiment_time"] = pd.to_datetime(full_df["experiment_time"]).dt.time
+full_df["puck_screen_thickness_mm"] = full_df["puck_screen_thickness_mm"].astype(float)
+full_df["grind_level_relative"] = full_df["grind_level_relative"].astype(float)
+full_df["dose_gr"] = full_df["dose_gr"].astype(float)
+full_df["yield_gr"] = full_df["yield_gr"].astype(float)
+full_df["extraction_ratio"] = full_df["extraction_ratio"].astype(float)
 
-if own_or_all is None:
-    st.stop()
-if own_or_all == "Your own data":
-    user_id = st.session_state.current_user_id
-else:
-    user_id = 0
+###########
+# Filters #
+###########
 
+# toggle to apply filters
 apply_filters = st.toggle("Apply filters?")
-
-if apply_filters:
-
+if not apply_filters:
+    st.session_state.espresso_data_filters_applied = False # reverts if untoggled
+# the form to select filters, if toggled:
+else:
+    # get default values from db
     default_range_dict = get_espresso_filter_default_range(user_id)
     default_coffee_dict = get_coffee_dict_from_espresso(user_id)
     default_machine_dict = get_machine_dict_from_espresso(user_id)
@@ -44,7 +51,6 @@ if apply_filters:
                     max_value = default_range_dict["max_date"],
                     help = "Select the start date of the data."
                 )
-                date_from = date_from.strftime("%Y-%m-%d")
             with right1:
                 date_until = st.date_input(
                     "Until",
@@ -53,7 +59,6 @@ if apply_filters:
                     max_value = default_range_dict["max_date"],
                     help = "Select the end date of the data."
                 )
-                date_until = date_until.strftime("%Y-%m-%d")
 
         with st.expander("Coffee selection"):
             coffee_beans = st.multiselect(
@@ -129,13 +134,13 @@ if apply_filters:
             grind_level = st.select_slider(
                 "Please select the range",
                 key = "grind_level_slider",
-                options = [round(i * 0.1, 1) for i in range(
-                    default_range_dict["min_grind_level"]*10, 
-                    default_range_dict["max_grind_level"]*10+1
+                options = [round(i * 0.01, 2) for i in range(
+                    int(float(default_range_dict["min_grind_level"])*100), 
+                    int(float(default_range_dict["max_grind_level"])*100+1)
                 )],
                 value = (
-                    default_range_dict["min_grind_level"], 
-                    default_range_dict["max_grind_level"]
+                    float(default_range_dict["min_grind_level"]), 
+                    float(default_range_dict["max_grind_level"])
                 ),
                 format_func = lambda x: f"{x:.1f}"
             )
@@ -253,46 +258,182 @@ if apply_filters:
             )
         
         filters_applied = st.form_submit_button("Apply filters")
+        st.session_state.espresso_data_filters_applied = filters_applied
+# End filters ############################################################
 
-    applied_filters = None
-    if filters_applied:
-        applied_filters = {
-            "date": [date_from, date_until],
-            "coffee_beans": coffee_beans,
-            "coffee_machine": coffee_machine,
-            "basket_pressurized": basket_pressurized,
-            "portafilter_spout": portafilter_spout,
-            "grinder": grinder,
-            "basket_shot_size": basket_shot_size,
-            "wdt_used": wdt_used,
-            "puck_screen_used": puck_screen_used,
-            "tamping_method": tamping_method,
-            "leveler_used": leveler_used,
-            "grind_level": grind_level,
-            "dose_gr": dose_gr,
-            "extr_time": extr_time,
-            "yield_gr": yield_gr,
-            "extr_ratio": extr_ratio,
-            "general_evaluation": general_evaluation,
-            "flavor_evaluation": flavor_evaluation,
-            "body_evaluation": body_evaluation,
-            "crema_evaluation": crema_evaluation
-        }
+# Subset the full df if filters are applied:
+if st.session_state.espresso_data_filters_applied:
+    df = full_df[
+        (full_df["experiment_date"] >= date_from) & 
+        (full_df["experiment_date"] <= date_until) & 
+        (full_df["coffee_id"].isin(coffee_beans)) & 
+        (full_df["coffee_machine_id"].isin(coffee_machine)) & 
+        (full_df["grinder_id"].isin(grinder)) & 
+        (full_df["basket_pressurized"].isin(basket_pressurized)) & 
+        (full_df["portafilter_spout"].isin(portafilter_spout)) & 
+        (full_df["basket_shot_size"].isin(basket_shot_size)) & 
+        (full_df["wdt_used"].isin(wdt_used)) & 
+        (full_df["puck_screen_used"].isin(puck_screen_used)) & 
+        (full_df["tamping_method"].isin(tamping_method)) & 
+        (full_df["leveler_used"].isin(leveler_used)) & 
+        (full_df["grind_level_relative"] >= grind_level[0]) & 
+        (full_df["grind_level_relative"] <= grind_level[1]) & 
+        (full_df["dose_gr"] >= dose_gr[0]) & 
+        (full_df["dose_gr"] <= dose_gr[1]) & 
+        (full_df["extraction_time_sec"] >= extr_time[0]) & 
+        (full_df["extraction_time_sec"] <= extr_time[1]) & 
+        (full_df["yield_gr"] >= yield_gr[0]) & 
+        (full_df["yield_gr"] <= yield_gr[1]) & 
+        (full_df["extraction_ratio"] >= extr_ratio[0]) & 
+        (full_df["extraction_ratio"] <= extr_ratio[1]) & 
+        (full_df["evaluation_general"] >= general_evaluation[0]) & 
+        (full_df["evaluation_general"] <= general_evaluation[1]) & 
+        (full_df["evaluation_flavor"] >= flavor_evaluation[0]) & 
+        (full_df["evaluation_flavor"] <= flavor_evaluation[1]) & 
+        (full_df["evaluation_body"] >= body_evaluation[0]) & 
+        (full_df["evaluation_body"] <= body_evaluation[1]) & 
+        (full_df["evaluation_crema"] >= crema_evaluation[0]) & 
+        (full_df["evaluation_crema"] <= crema_evaluation[1])
+    ]
 else:
-    applied_filters = None
+    df = full_df
 
-st.header("Analyze data")
-explore_type = st.segmented_control(
-    "What would you like to do with the data?",
-    options = ["Dashboard", "See experiments"])
+st.header("Dashboard")
 
-if explore_type is "Dashboard":
-    selected_data = get_espresso_data(user_id, applied_filters)
-    st.write(selected_data)
-    st.write(len(selected_data["data"]), "experiments found.")
+# Feature types, to determine plot types
 
-    import pandas as pd
-    df = pd.DataFrame(selected_data["data"], columns=selected_data["columns"])
-    st.dataframe(df)
+num_vars = {
+    "grind_level_relative" : "Relative grind level",
+    "dose_gr" : "Dose (gr)",
+    "extraction_time_sec" : "Extraction time (sec)",
+    "yield_gr" : "Yield (gr)",
+    "extraction_ratio" : "Extraction ratio",
+    "evaluation_general" : "General evaluation",
+    "evaluation_flavor" : "Flavor evaluation",
+    "evaluation_body" : "Body evaluation",
+    "evaluation_crema" : "Crema evaluation"
+}
+cat_vars = {
+    "machine_description" : "Coffee machine",
+    "grinder_description" : "Grinder",
+    "coffee_description" : "Coffee beans",
+    "basket_pressurized" : "Pressurized basket",
+    "portafilter_spout" : "Portafilter spout type",
+    "basket_shot_size" : "Basket shot size",
+    "wdt_used" : "WDT used",
+    "puck_screen_used" : "Puck screen used",
+    "tamping_method" : "Tamping method",
+    "leveler_used" : "Leveler used"
+}
+time_vars = {
+    "experiment_date" : "Experiment date"
+}
+all_vars = {**num_vars, **cat_vars, **time_vars}
+
+num_counter = 0
+cat_counter = 0
+time_counter = 0
+
+left_d1, right_d1 = st.columns([0.67, 0.33], vertical_alignment = "bottom")
+
+# Select the first variable
+with left_d1:
+    y_var = st.selectbox(
+        "Please select a variable to explore:",
+        options = all_vars, 
+        index = 5,  # Default to "evaluation_general"
+        format_func = lambda x: all_vars[x]
+    )
+    all_vars.pop(y_var)
+    # Determine the type of the selected variable
+    if y_var in num_vars:
+        num_counter += 1
+    elif y_var in cat_vars:
+        cat_counter += 1
+    elif y_var in time_vars:
+        time_counter += 1
+
+with right_d1:
+    add_second_var = st.toggle(
+        "Add a second variable?", 
+        value = True
+    )
+
+if add_second_var:
+    left_d2, right_d2 = st.columns([0.67, 0.33], vertical_alignment = "bottom")
+    with left_d2:
+        x_var = st.selectbox(
+            "Please select a second variable to explore:",
+            options = all_vars, 
+            index = 4, # Default to "extraction_ratio" 
+            format_func = lambda x: all_vars[x]
+        )
+        all_vars.pop(x_var)
+        # Determine the type of the selected variable
+        if x_var in num_vars:
+            num_counter += 1
+        elif x_var in cat_vars:
+            cat_counter += 1
+        elif x_var in time_vars:
+            time_counter += 1
+
+    with right_d2:
+        add_third_var = st.toggle(
+            "Add a third variable?", 
+            value = True
+        )
+
+    if add_third_var:
+        left_d3, right_d3 = st.columns([0.67, 0.33], vertical_alignment = "bottom")
+        with left_d3:
+            z_var = st.selectbox(
+                "Please select a grouping variable:",
+                options = all_vars, 
+                index = 9,  # Default to "coffee_description"
+                format_func = lambda x: all_vars[x]
+            )
+            if z_var in num_vars:
+                num_counter += 1
+            elif z_var in cat_vars:
+                cat_counter += 1
+            elif z_var in time_vars:
+                time_counter += 1
+
+var_types = (num_counter, cat_counter, time_counter)
+
+if var_types == (0, 0, 1):
+    plot_type = "bar_time"
+elif var_types == (0, 1, 0):
+    plot_type = "bar"
+elif var_types == (0, 1, 1):
+    plot_type = "stacked_bar_time"
+elif var_types == (0, 2, 0):
+    plot_type = "stacked_bar"
+elif var_types == (0, 2, 1):
+    plot_type = "stacked_bar_time_facet"
+elif var_types == (0, 3, 0):
+    plot_type = "stacked_bar_facet"
+elif var_types == (1, 0, 0):
+    plot_type = "histogram"
+elif var_types == (1, 0, 1):
+    plot_type = "line"
+elif var_types == (1, 1, 0):
+    plot_type = "violin"
+elif var_types == (1, 1, 1):
+    plot_type = "line_color"
+elif var_types == (1, 2, 0):
+    plot_type = "violin_facet"
+elif var_types == (2, 0, 0):
+    plot_type = "scatter"
+elif var_types == (2, 0, 1):
+    plot_type = "scatter_color_continous"
+elif var_types == (2, 1, 0):
+    plot_type = "scatter_color_discrete"
+elif var_types == (3, 0, 0):
+    plot_type = "scatter_size"
+
+st.write(f"Plot type: **{plot_type}**")
+
+    
 
 

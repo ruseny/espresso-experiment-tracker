@@ -382,54 +382,66 @@ def get_grinder_dict_from_espresso(user_id : int) -> dict:
         result = session.exec(query)
     return {row.id: [row.product, row.min_espresso_range, row.max_espresso_range] for row in result}
 
-def get_selected_espresso_data(user_id : int, applied_filters : dict = None) -> dict:
-    select_from = """
-        SELECT *
-        FROM EspressoExperiments
-        WHERE user_id = :user_id
+def get_users_espresso_data(user_id : int) -> dict:
+    query = text(
         """
-    if bool(not applied_filters):
-        query = text(f"{select_from};").bindparams(
-            bindparam("user_id", user_id)
-        )
-    else:
-        query = text(f"""
-            {select_from}
-            AND grind_setting BETWEEN :min_grind_level AND :max_grind_level
-            AND dose_gr BETWEEN :min_dose AND :max_dose
-            AND extraction_time_sec BETWEEN :min_time AND :max_time
-            AND yield_gr BETWEEN :min_yield AND :max_yield
-            AND ROUND(yield_gr/dose_gr, 2) BETWEEN :min_ratio AND :max_ratio
-            AND evaluation_general BETWEEN :min_evaluation_general AND :max_evaluation_general
-            AND evaluation_flavor BETWEEN :min_evaluation_flavor AND :max_evaluation_flavor
-            AND evaluation_body BETWEEN :min_evaluation_body AND :max_evaluation_body
-            AND evaluation_crema BETWEEN :min_evaluation_crema AND :max_evaluation_crema
-            ;
-        """).bindparams(
-            bindparam("user_id", user_id),
-            bindparam("min_grind_level", applied_filters["grind_level"][0]),
-            bindparam("max_grind_level", applied_filters["grind_level"][1]),
-            bindparam("min_dose", applied_filters["dose"][0]),
-            bindparam("max_dose", applied_filters["dose"][1]),
-            bindparam("min_time", applied_filters["extraction_time"][0]),
-            bindparam("max_time", applied_filters["extraction_time"][1]),
-            bindparam("min_yield", applied_filters["yield"][0]),
-            bindparam("max_yield", applied_filters["yield"][1]),
-            bindparam("min_ratio", applied_filters["ratio"][0]),
-            bindparam("max_ratio", applied_filters["ratio"][1]),
-            bindparam("min_evaluation_general", applied_filters["evaluation_general"][0]),
-            bindparam("max_evaluation_general", applied_filters["evaluation_general"][1]),
-            bindparam("min_evaluation_flavor", applied_filters["evaluation_flavor"][0]),
-            bindparam("max_evaluation_flavor", applied_filters["evaluation_flavor"][1]),
-            bindparam("min_evaluation_body", applied_filters["evaluation_body"][0]),
-            bindparam("max_evaluation_body", applied_filters["evaluation_body"][1]),
-            bindparam("min_evaluation_crema", applied_filters["evaluation_crema"][0]),
-            bindparam("max_evaluation_crema", applied_filters["evaluation_crema"][1])
-        )
+        SELECT 
+            e.id AS experiment_id,
+            DATE_FORMAT(e.experiment_datetime, "%Y-%m-%d") AS experiment_date,
+            TIME_FORMAT(e.experiment_datetime, "%H:%i:%s") AS experiment_time,
+            e.coffee_machine_id,
+            CONCAT(
+                m.manufacturer, ' ', 
+                m.model_name, ' ', 
+                m.model_name_add, ' ', 
+                m.model_specification
+            ) AS machine_description,
+            e.grinder_id,
+            CONCAT(
+                g.manufacturer, ' ', 
+                g.model_name, ' ', 
+                g.model_name_add, ' ', 
+                g.model_specification
+            ) AS grinder_description,
+            v.id AS coffee_id,
+            CONCAT(
+                v.producer, ' ', 
+                v.name
+            ) AS coffee_description,
+            p.purchase_date AS coffee_purchase_date,
+            e.basket_pressurized,
+            e.basket_shot_size,
+            e.portafilter_spout,
+            e.wdt_used,
+            e.tamping_method,
+            e.leveler_used,
+            e.puck_screen_used,
+            e.puck_screen_thickness_mm,
+            e.grind_setting AS grind_level_relative,
+            e.dose_gr, 
+            e.water_temp_c,
+            e.extraction_time_sec,
+            e.yield_gr,
+            ROUND(e.yield_gr/e.dose_gr, 2) AS extraction_ratio,
+            e.evaluation_general,
+            e.evaluation_flavor,
+            e.evaluation_body,
+            e.evaluation_crema
+        FROM EspressoExperiments AS e
+        JOIN CoffeeMachines AS m ON e.coffee_machine_id = m.id
+        JOIN Grinders AS g ON e.grinder_id = g.id
+        JOIN CoffeeBeanPurchases AS p ON e.coffee_bean_purchase_id = p.id
+        JOIN CoffeeBeanVarieties AS v ON p.variety_id = v.id
+        WHERE e.user_id = :user_id
+        ;
+        """
+    ).bindparams(
+        bindparam("user_id", user_id)
+    )
 
     with Session(db_engine) as session:
         result = session.exec(query).fetchall()
     return {
         "columns": result[0]._fields, 
-            "data": [tuple(row._asdict().values()) for row in result]
+        "data": [tuple(row._asdict().values()) for row in result]
     } if result else {"columns": [], "data": []}
