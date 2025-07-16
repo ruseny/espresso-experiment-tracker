@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS EspressoExperiments (
     puck_screen_used ENUM('yes', 'no') NOT NULL,
     puck_screen_thickness_mm DECIMAL(5, 2),
     coffee_bean_purchase_id INT NOT NULL,
-    grind_setting SMALLINT NOT NULL,
+    grind_setting DECIMAL(5,2) NOT NULL,
     dose_gr DECIMAL(5,2) NOT NULL,
     water_temp_c SMALLINT DEFAULT 93, 
     extraction_time_sec SMALLINT NOT NULL,
