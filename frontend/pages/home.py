@@ -1,6 +1,6 @@
 import streamlit as st
 import requests
-from src.helpers import get_user_list
+from frontend.src.api_requests import get_user_list
 
 user_dict = get_user_list()
 

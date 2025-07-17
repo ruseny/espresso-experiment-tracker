@@ -1,5 +1,5 @@
 import streamlit as st
-from src.helpers import (
+from frontend.src.api_requests import (
     get_all_coffee_machines_dict,
     get_all_coffee_machine_manufacturers_list, 
     get_all_grinders_dict,

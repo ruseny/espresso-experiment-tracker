@@ -1,5 +1,5 @@
 import streamlit as st
-from src.helpers import (
+from frontend.src.api_requests import (
     get_all_coffee_varieties, 
     get_all_sellers_list, 
     show_response_feedback, 
