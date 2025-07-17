@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 from src.helpers import (
     get_espresso_filter_default_range, 
     get_coffee_dict_from_espresso, 
@@ -300,8 +301,7 @@ else:
 
 st.header("Dashboard")
 
-# Feature types, to determine plot types
-
+# Feature data types, to determine plot types
 num_vars = {
     "grind_level_relative" : "Relative grind level",
     "dose_gr" : "Dose (gr)",
@@ -326,7 +326,7 @@ cat_vars = {
     "leveler_used" : "Leveler used"
 }
 time_vars = {
-    "experiment_date" : "Experiment date"
+    "year_month" : "Experiment date"
 }
 all_vars = {**num_vars, **cat_vars, **time_vars}
 
@@ -335,6 +335,11 @@ cat_counter = 0
 time_counter = 0
 
 left_d1, right_d1 = st.columns([0.67, 0.33], vertical_alignment = "bottom")
+
+#initialize variables
+y_var = None
+x_var = None
+z_var = None
 
 # Select the first variable
 with left_d1:
@@ -387,7 +392,7 @@ if add_second_var:
         left_d3, right_d3 = st.columns([0.67, 0.33], vertical_alignment = "bottom")
         with left_d3:
             z_var = st.selectbox(
-                "Please select a grouping variable:",
+                "Please select a third variable:",
                 options = all_vars, 
                 index = 9,  # Default to "coffee_description"
                 format_func = lambda x: all_vars[x]
@@ -400,11 +405,67 @@ if add_second_var:
                 time_counter += 1
 
 var_types = (num_counter, cat_counter, time_counter)
+all_vars = {**num_vars, **cat_vars, **time_vars}
+
+if "year_month" in [y_var, x_var, z_var]:
+    df["year_month"] = pd.to_datetime(df["experiment_date"]).dt.to_period("M").astype(str)
+
+@st.cache_data
+def get_plot_data(df, y_var, x_var=None, z_var=None):
+
+    if x_var is None and z_var is None:
+        return df[[y_var]]
+    elif x_var is not None and z_var is None:
+        return df[[y_var, x_var]]
+    else:
+        return df[[y_var, x_var, z_var]]
+
+@st.cache_data
+def get_plot_data_of_counts(df, y_var, x_var=None, z_var=None):
+    if x_var is None and z_var is None:
+        return df.\
+            value_counts(y_var).\
+            reset_index(name = "Number of espressos").\
+            sort_values(by = y_var).\
+            rename(columns = {y_var : all_vars[y_var]})
+    elif x_var is not None and z_var is None:
+        return df.\
+            groupby([y_var, x_var]).\
+            size().\
+            reset_index(name = "Number of espressos").\
+            sort_values(by = y_var).\
+            rename(columns = {y_var : all_vars[y_var], x_var : all_vars[x_var]})
+    else:
+        return df.\
+            groupby([y_var, x_var, z_var]).\
+            size().\
+            reset_index(name = "Number of espressos").\
+            sort_values(by = y_var).\
+            rename(columns = {y_var : all_vars[y_var], x_var : all_vars[x_var], z_var : all_vars[z_var]})
 
 if var_types == (0, 0, 1):
-    plot_type = "bar_time"
+    plot_data = get_plot_data_of_counts(df, y_var)
+    
+    fig = px.bar(
+        plot_data, 
+        x = all_vars[y_var], 
+        y = "Number of espressos",
+        title = f"Number of espressos per month", 
+        labels = {all_vars[y_var] : "Year-Month"}
+    )
+    st.plotly_chart(fig, use_container_width = True)
+
 elif var_types == (0, 1, 0):
-    plot_type = "bar"
+    plot_data = get_plot_data_of_counts(df, y_var)
+    
+    fig = px.bar(
+        plot_data, 
+        x = all_vars[y_var], 
+        y = "Number of espressos",
+        title = f"Number of espressos per {all_vars[y_var]}"
+    )
+    st.plotly_chart(fig, use_container_width = True)
+
 elif var_types == (0, 1, 1):
     plot_type = "stacked_bar_time"
 elif var_types == (0, 2, 0):
@@ -432,7 +493,7 @@ elif var_types == (2, 1, 0):
 elif var_types == (3, 0, 0):
     plot_type = "scatter_size"
 
-st.write(f"Plot type: **{plot_type}**")
+#st.write(f"Plot type: **{plot_type}**")
 
     
 
