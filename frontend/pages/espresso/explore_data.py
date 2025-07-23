@@ -10,7 +10,9 @@ from src.api_requests import (
 )
 from src.plot_utils import (
     get_plot_data,
-    get_plot_data_of_counts
+    get_plot_data_of_counts, 
+    get_plot_data_of_means, 
+    get_plot_data_with_months
 )
 
 st.title("Explore Espresso Data")
@@ -334,7 +336,7 @@ cat_vars = {
     "leveler_used" : "Leveler used"
 }
 time_vars = {
-    "year_month" : "Experiment date"
+    "experiment_date" : "Experiment date"
 }
 
 # a dict to hold all variables names and keys
@@ -348,8 +350,8 @@ cat_counter = 0
 time_counter = 0
 
 #initialize variable names
-y_var = None
 x_var = None
+y_var = None
 z_var = None
 
 # Select up to three variables, named y, x, and z
@@ -358,19 +360,19 @@ z_var = None
 left_d1, right_d1 = st.columns([0.67, 0.33], vertical_alignment = "bottom")
 # Select the first variable
 with left_d1:
-    y_var = st.selectbox(
+    x_var = st.selectbox(
         "Please select a variable to explore:",
         options = all_vars, 
         index = 5,  # Default to "evaluation_general"
         format_func = lambda x: all_vars[x]
     )
-    sel_vars[y_var] = all_vars.pop(y_var)
+    sel_vars[x_var] = all_vars.pop(x_var)
     # Determine the type of the selected variable
-    if y_var in num_vars:
+    if x_var in num_vars:
         num_counter += 1
-    elif y_var in cat_vars:
+    elif x_var in cat_vars:
         cat_counter += 1
-    elif y_var in time_vars:
+    elif x_var in time_vars:
         time_counter += 1
 
 with right_d1:
@@ -383,25 +385,25 @@ if add_second_var:
     left_d2, right_d2 = st.columns([0.67, 0.33], vertical_alignment = "bottom")
     # select the second variable
     with left_d2:
-        x_var = st.selectbox(
+        y_var = st.selectbox(
             "Please select a second variable to explore:",
             options = all_vars, 
             index = 4, # Default to "extraction_ratio" 
             format_func = lambda x: all_vars[x]
         )
-        sel_vars[x_var] = all_vars.pop(x_var)
+        sel_vars[y_var] = all_vars.pop(y_var)
         # Determine the type of the selected variable
-        if x_var in num_vars:
+        if y_var in num_vars:
             num_counter += 1
-        elif x_var in cat_vars:
+        elif y_var in cat_vars:
             cat_counter += 1
-        elif x_var in time_vars:
+        elif y_var in time_vars:
             time_counter += 1
 
     with right_d2:
         add_third_var = st.toggle(
             "Add a third variable?", 
-            value = True
+            value = False
         )
 
     if add_third_var:
@@ -427,8 +429,8 @@ if add_second_var:
 var_types = (num_counter, cat_counter, time_counter)
 
 # if date (year-month) is selected, create a variable for months from dates
-if "year_month" in [y_var, x_var, z_var]:
-    df["year_month"] = pd.to_datetime(df["experiment_date"]).dt.to_period("M").astype(str)
+# if "year_month" in [x_var, y_var, z_var]:
+#     df["year_month"] = pd.to_datetime(df["experiment_date"]).dt.to_period("M").astype(str)
 
 # End variable selection #####################################################
 
@@ -438,57 +440,479 @@ if "year_month" in [y_var, x_var, z_var]:
 
 # Depending on how many of each variable type is selected, determine the plot type
 
+# Plot for only one time variable: bar chart of number of espressos per month
 if var_types == (0, 0, 1):
-    plot_data = get_plot_data_of_counts(df, sel_vars, y_var)
+    plot_data = get_plot_data(df, sel_vars, x_var)
     
-    fig = px.bar(
+    fig = px.histogram(
         plot_data, 
-        x = sel_vars[y_var], 
-        y = "Number of espressos",
+        x = sel_vars[x_var], 
         title = f"Number of espressos per month", 
-        labels = {sel_vars[y_var] : "Year-Month"}
+        labels = {sel_vars[x_var] : "Year-Month"}
     )
+    fig.update_traces(
+        xbins_size = "M1", 
+        hovertemplate = "Month and year: %{x|%b %Y} <br>Number of espressos: %{y}"
+    )
+    fig.update_xaxes(ticklabelmode = "period", dtick = "M1")
+    fig.update_yaxes(title_text = "Number of espressos")
     st.plotly_chart(fig, use_container_width = True)
 
+# plot for only one categorical variable: bar chart number of espressos per category
 elif var_types == (0, 1, 0):
-    plot_data = get_plot_data_of_counts(df, sel_vars, y_var)
+    plot_data = get_plot_data_of_counts(df, sel_vars, x_var)
     
     fig = px.bar(
         plot_data, 
-        x = sel_vars[y_var], 
+        x = sel_vars[x_var], 
         y = "Number of espressos",
-        title = f"Number of espressos per {sel_vars[y_var]}"
+        title = f"Number of espressos per {sel_vars[x_var]}"
+    )
+    fig.update_traces(
+        hovertemplate = f"{sel_vars[x_var]}: %{{x}} <br>Number of espressos: %{{y}}"
     )
     st.plotly_chart(fig, use_container_width = True)
 
+# plot for one time and one categorical variable: bar chart of number of espressos per month
+# color-stacked by categories 
+# time is always on x-axis, irrespective of the order of selection
 elif var_types == (0, 1, 1):
-    plot_type = "stacked_bar_time"
-elif var_types == (0, 2, 0):
-    plot_type = "stacked_bar"
-elif var_types == (0, 2, 1):
-    plot_type = "stacked_bar_time_facet"
-elif var_types == (0, 3, 0):
-    plot_type = "stacked_bar_facet"
-elif var_types == (1, 0, 0):
-    plot_type = "histogram"
-elif var_types == (1, 0, 1):
-    plot_type = "line"
-elif var_types == (1, 1, 0):
-    plot_type = "violin"
-elif var_types == (1, 1, 1):
-    plot_type = "line_color"
-elif var_types == (1, 2, 0):
-    plot_type = "violin_facet"
-elif var_types == (2, 0, 0):
-    plot_type = "scatter"
-elif var_types == (2, 0, 1):
-    plot_type = "scatter_color_continous"
-elif var_types == (2, 1, 0):
-    plot_type = "scatter_color_discrete"
-elif var_types == (3, 0, 0):
-    plot_type = "scatter_size"
+    cat_var, time_var = None, None
+    for var in sel_vars:
+        if var in cat_vars:
+            cat_var = var
+        elif var in time_vars:
+            time_var = var
 
-#st.write(f"Plot type: **{plot_type}**")
+    plot_data = get_plot_data(df, sel_vars, time_var, cat_var)
+
+    fig = px.histogram(
+        plot_data,
+        x = sel_vars[time_var],
+        color = sel_vars[cat_var],
+        title = f"Number of espressos per Year-Month and {sel_vars[cat_var]}",
+        labels = {sel_vars[time_var] : "Year-Month"}
+    )
+    fig.update_traces(
+        xbins_size = "M1", 
+        customdata = plot_data[[sel_vars[cat_var]]], 
+        hovertemplate = f"Month and year: %{{x|%b %Y}} <br>{sel_vars[cat_var]}: %{{customdata[0]}} <br>Number of espressos: %{{y}} <extra></extra>"
+        )
+    fig.update_xaxes(ticklabelmode = "period", dtick = "M1")
+    fig.update_yaxes(title_text = "Number of espressos")
+    st.plotly_chart(fig, use_container_width = True)
+
+# plot for two categorical variables: bar chart of number of espressos per first categories
+# color-stacked by second categories
+elif var_types == (0, 2, 0):
+    plot_data = get_plot_data_of_counts(df, sel_vars, x_var, y_var)
+
+    fig = px.bar(
+        plot_data,
+        x = sel_vars[x_var],
+        y = "Number of espressos",
+        color = sel_vars[y_var],
+        title = f"Number of espressos per {sel_vars[x_var]} and {sel_vars[y_var]}",
+    )
+    fig.update_traces(
+        customdata = plot_data[[sel_vars[y_var]]],
+        hovertemplate = f"{sel_vars[x_var]}: %{{x}} <br>{sel_vars[y_var]}: %{{customdata[0]}} <br>Number of espressos: %{{y}} <extra></extra>"
+    )
+    st.plotly_chart(fig, use_container_width = True)
+
+# plot for two categorical variables and one time variable: bar chart of number of espressos per rmonth
+# color-stacked by first category, faceted by second category
+# time is always on x-axis, irrespective of the order of selection
+elif var_types == (0, 2, 1):
+    cat_var1, cat_var2, time_var = None, None, None
+    for var in sel_vars:
+        if var in cat_vars and cat_var1 is None:
+            cat_var1 = var
+        elif var in cat_vars and cat_var2 is None:
+            cat_var2 = var
+        elif var in time_vars:
+            time_var = var
+
+    plot_data = get_plot_data(df, sel_vars, time_var, cat_var1, cat_var2) 
+
+    # to dynamically change the height of the plot based on the number of facets
+    num_facets = len(plot_data[sel_vars[cat_var2]].unique())
+
+    fig = px.histogram(
+        plot_data,
+        x = sel_vars[time_var],
+        color = sel_vars[cat_var1],
+        facet_row = sel_vars[cat_var2],
+        height = num_facets * 450,
+        title = f"Number of espressos per Year-month, {sel_vars[cat_var1]} and {sel_vars[cat_var2]}",
+        labels = {sel_vars[time_var] : "Year-Month"}
+    )
+    fig.update_traces(
+        xbins_size = "M1", 
+        customdata = plot_data[[sel_vars[cat_var1]]],
+        hovertemplate = f"Month and year: %{{x|%b %Y}} <br>{sel_vars[cat_var1]}: %{{customdata[0]}} <br>Number of espressos: %{{y}} <extra></extra>"
+    )
+    fig.update_xaxes(ticklabelmode = "period", dtick = "M1")
+    fig.update_yaxes(title_text = "Number of espressos")
+    st.plotly_chart(fig, use_container_width = True)
+
+# plot for three categorical variables: bar chart of number of espressos per first categories,
+# color-stacked by second categories, and faceted by third categories
+elif var_types == (0, 3, 0):
+    plot_data = get_plot_data_of_counts(df, sel_vars, x_var, y_var, z_var)
+
+    num_facets = len(plot_data[sel_vars[z_var]].unique())
+
+    fig = px.bar(
+        plot_data, 
+        x = sel_vars[x_var], 
+        y = "Number of espressos", 
+        color = sel_vars[y_var], 
+        facet_row = sel_vars[z_var], 
+        height = num_facets * 450, 
+        title = f"Number of espressos per {sel_vars[x_var]}, {sel_vars[y_var]}, and {sel_vars[z_var]}"
+    )
+    fig.update_traces(
+        customdata = plot_data[[sel_vars[y_var], sel_vars[z_var]]],
+        hovertemplate = f"{sel_vars[x_var]}: %{{x}} <br>{sel_vars[y_var]}: %{{customdata[0]}} <br>{sel_vars[z_var]}: %{{customdata[1]}} <br>Number of espressos: %{{y}} <extra></extra>"
+    )
+    st.plotly_chart(fig, use_container_width = True)
+
+# plot for only one numeric variable: histogram
+elif var_types == (1, 0, 0):
+    plot_data = get_plot_data(df, sel_vars, x_var)
+
+    fig = px.histogram(
+        plot_data, 
+        x = sel_vars[x_var], 
+        title = "Distribution of " + sel_vars[x_var]
+    )
+    fig.update_yaxes(title_text = "Number of espressos")
+    fig.update_traces(
+        hovertemplate = f"{sel_vars[x_var]}: %{{x}} <br>Number of espressos: %{{y}}"
+    )
+    st.plotly_chart(fig, use_container_width = True)
+
+# plot for one numeric and one time variable: scatter plot with average line
+# with points for individual espressos, with time on x-axis, numeric on y-axis
+elif var_types == (1, 0, 1):
+    num_var, time_var = None, None
+    for var in sel_vars:
+        if var in num_vars:
+            num_var = var
+        elif var in time_vars:
+            time_var = var
+
+    plot_data_dots = get_plot_data(df, sel_vars, time_var, num_var)
+    plot_data_line = get_plot_data_of_means(df, sel_vars, time_var, num_var)
+    plot_data_line = get_plot_data_with_months(plot_data_line, sel_vars, sel_vars[time_var], sel_vars[num_var])
+
+    fig_dots = px.scatter(
+        plot_data_dots, 
+        x = sel_vars[time_var],
+        y = sel_vars[num_var],
+        title = f"{sel_vars[num_var]} over time"
+    )
+    fig_dots.update_traces(
+        name = "Espressos",
+        showlegend = True, 
+        hovertemplate = f"{sel_vars[time_var]}: %{{x}} <br>{sel_vars[num_var]}: %{{y:.2f}} <extra></extra>"
+        )
+    fig_dots.update_xaxes(
+        ticklabelmode = "period", 
+        dtick = "M1"
+    )
+    fig_line = px.line(
+        plot_data_line, 
+        x = "month_mid", 
+        y = sel_vars[num_var],
+        labels = {"month_mid" : "Year-month"},
+        markers = True
+    )
+    fig_line.update_traces(
+        name = "Monthly average",
+        showlegend = True,
+        marker = dict(
+            size = 8, color = "orangered", symbol = "square", 
+            line = dict(width = 0.5, color = "dimgray")
+        ), 
+        line = dict(width = 2, color = "orangered"), 
+        hovertemplate = "Month and year: %{x|%b %Y} <br>" + f"Avg. {sel_vars[num_var]}: " + "%{y:.2f}" + "<extra></extra>"
+    )
+    fig_dots.add_traces(
+        fig_line.data
+    )
+    
+    st.plotly_chart(fig_dots, use_container_width = True)
+
+# plot for one numeric and one categorical variable: bee-swarm with average markers
+elif var_types == (1, 1, 0):
+    cat_var, num_var = None, None
+    for var in sel_vars:
+        if var in cat_vars:
+            cat_var = var
+        elif var in num_vars:
+            num_var = var
+
+    plot_data_dots = get_plot_data(df, sel_vars, cat_var, num_var)
+    plot_data_avg = get_plot_data_of_means(df, sel_vars, cat_var, num_var)
+
+    fig_dots = px.strip(
+        plot_data_dots, 
+        x = sel_vars[cat_var],
+        y = sel_vars[num_var],
+        title = f"{sel_vars[num_var]} per {sel_vars[cat_var]}",
+    )
+    fig_dots.update_traces(
+        jitter = 1, 
+        name = "Espressos",
+        showlegend = True, 
+        hovertemplate = f"{sel_vars[cat_var]}: %{{x}} <br>{sel_vars[num_var]}: %{{y:.2f}}<extra></extra>"
+    )
+    fig_avg = px.scatter(
+        plot_data_avg, 
+        x = sel_vars[cat_var], 
+        y = sel_vars[num_var],
+    )
+    fig_avg.update_traces(
+        marker = dict(
+            size = 8, color = "orangered", symbol = "square", 
+            line = dict(width = 0.5, color = "dimgray")
+        ), 
+        name = "Average per category",  
+        showlegend = True, 
+        hovertemplate = f"{sel_vars[cat_var]}: %{{x}} <br>Avg. {sel_vars[num_var]}: %{{y:.2f}}<extra></extra>"
+    )
+    fig_dots.add_traces(fig_avg.data)
+    st.plotly_chart(fig_dots, use_container_width = True)
+
+# plot for one numeric, one categorical, and one time variable: scatter plot with trend line of average
+# with points for individual espressos, with time on x-axis, numeric on y-axis
+# and colored by categories
+elif var_types == (1, 1, 1):
+    cat_var, num_var, time_var = None, None, None
+    for var in sel_vars:
+        if var in cat_vars:
+            cat_var = var
+        elif var in num_vars:
+            num_var = var
+        elif var in time_vars:
+            time_var = var
+    
+    plot_data_dots = get_plot_data(df, sel_vars, time_var, num_var, cat_var)
+    plot_data_line = get_plot_data_of_means(df, sel_vars, time_var, num_var)
+    plot_data_line = get_plot_data_with_months(plot_data_line, sel_vars, sel_vars[time_var], sel_vars[num_var])
+
+    fig_dots = px.scatter(
+        plot_data_dots, 
+        x = sel_vars[time_var],
+        y = sel_vars[num_var],
+        color = sel_vars[cat_var],
+        title = f"{sel_vars[num_var]} over time and {sel_vars[cat_var]}",
+    )
+    fig_dots.update_xaxes(
+        ticklabelmode = "period", 
+        dtick = "M1"
+    )
+    fig_dots.update_traces(
+        customdata = plot_data_dots[[sel_vars[cat_var]]],
+        hovertemplate = f"{sel_vars[time_var]}: %{{x}} <br>{sel_vars[cat_var]}: %{{customdata[0]}} <br>{sel_vars[num_var]}: %{{y:.2f}}<extra></extra>"
+    )
+    fig_line = px.line(
+        plot_data_line, 
+        x = "month_mid", 
+        y = sel_vars[num_var],
+        labels = {"month_mid" : "Year-month"},
+        markers = True,
+        hover_data = {"month_mid" : "|%b %Y"}
+    )
+    fig_line.update_traces(
+        name = "Monthly average",
+        showlegend = True,
+        marker = dict(
+            size = 8, color = "orangered", symbol = "square", 
+            line = dict(width = 0.5, color = "dimgray")
+        ), 
+        line = dict(width = 2, color = "orangered"), 
+        hovertemplate = "Month and year: %{x|%b %Y} <br>" + f"Avg. {sel_vars[num_var]}: " + "%{y:.2f}"
+    )
+    fig_dots.add_traces(
+        fig_line.data
+    )
+    
+    st.plotly_chart(fig_dots, use_container_width = True)
+
+# plot for one numeric and two categorical variables: bee-swarm with average markers
+# with points for individual espressos, with numeric on y-axis, first categorical on x-axis,
+# and second categorical as color
+elif var_types == (1, 2, 0):
+    num_var, cat_var1, cat_var2 = None, None, None
+    for var in sel_vars:
+        if var in num_vars:
+            num_var = var
+        elif var in cat_vars and cat_var1 is None:
+            cat_var1 = var
+        elif var in cat_vars and cat_var2 is None:
+            cat_var2 = var
+    
+    plot_data_dots = get_plot_data(df, sel_vars, cat_var1, cat_var2, num_var)
+    plot_data_avg = get_plot_data_of_means(df, sel_vars, cat_var1, num_var)
+
+    fig_dots = px.strip(
+        plot_data_dots, 
+        x = sel_vars[cat_var1],
+        y = sel_vars[num_var],
+        color = sel_vars[cat_var2],
+        title = f"{sel_vars[num_var]} per {sel_vars[cat_var1]} and {sel_vars[cat_var2]}",
+    )
+    fig_dots.update_traces(
+        jitter = 1,
+        customdata = plot_data_dots[[sel_vars[cat_var2]]],
+        hovertemplate = f"{sel_vars[cat_var1]}: %{{x}} <br>{sel_vars[cat_var2]}: %{{customdata[0]}} <br>{sel_vars[num_var]}: %{{y:.2f}}<extra></extra>"
+    )
+    fig_avg = px.scatter(
+        plot_data_avg, 
+        x = sel_vars[cat_var1], 
+        y = sel_vars[num_var]
+    )
+    fig_avg.update_traces(
+        marker = dict(
+            size = 8, symbol = "square", color = "orangered", 
+            line = dict(width = 0.5, color = "dimgray")
+        ), 
+        name = f"Average per {sel_vars[cat_var1]}",  
+        showlegend = True, 
+        hovertemplate = f"{sel_vars[cat_var1]}: %{{x}} <br>Avg. {sel_vars[num_var]}: %{{y:.2f}}<extra></extra>"
+    )
+    fig_dots.add_traces(fig_avg.data)
+
+    st.plotly_chart(fig_dots, use_container_width = True)
+
+# plot for two numeric variables: scatter plot with trend line
+elif var_types == (2, 0, 0):
+    plot_data = get_plot_data(df, sel_vars, x_var, y_var)
+
+    fig = px.scatter(
+        plot_data, 
+        x = sel_vars[x_var], 
+        y = sel_vars[y_var],
+        opacity = 0.2,
+        title = f"{sel_vars[y_var]} vs {sel_vars[x_var]}", 
+        trendline = "lowess",
+    )
+    fig.update_traces(
+        line = dict(width = 1, color = "orangered"),
+        marker = dict(size = 5),
+        hovertemplate = f"{sel_vars[x_var]}: %{{x:.2f}} <br>{sel_vars[y_var]}: %{{y:.2f}}"
+    )
+    st.plotly_chart(fig, use_container_width = True)
+
+# plot for two numeric variables and one time variable: scatter plot with trend line of average
+# with points for individual espressos, with time on x-axis, first numeric on y-axis,
+# and second numeric as color
+elif var_types == (2, 0, 1):
+    num_var1, num_var2, time_var = None, None, None
+    for var in sel_vars:
+        if var in num_vars and num_var1 is None:
+            num_var1 = var
+        elif var in num_vars and num_var2 is None:
+            num_var2 = var
+        elif var in time_vars:
+            time_var = var
+    
+    plot_data_dots = get_plot_data(df, sel_vars, time_var, num_var1, num_var2)
+    plot_data_line = get_plot_data_of_means(df, sel_vars, time_var, num_var1)
+    plot_data_line = get_plot_data_with_months(plot_data_line, sel_vars, sel_vars[time_var], sel_vars[num_var1])
+
+    fig_dots = px.scatter(
+        plot_data_dots,
+        x = sel_vars[time_var],
+        y = sel_vars[num_var1],
+        color = sel_vars[num_var2],
+        title = f"{sel_vars[num_var1]} over time and {sel_vars[num_var2]}"
+    )
+    fig_dots.update_xaxes(
+        ticklabelmode = "period", 
+        dtick = "M1"
+    )
+    fig_dots.update_traces(
+        customdata = plot_data_dots[[sel_vars[num_var2]]],
+        hovertemplate = f"{sel_vars[time_var]}: %{{x}} <br>{sel_vars[num_var2]}: %{{customdata[0]}} <br>{sel_vars[num_var1]}: %{{y:.2f}}<extra></extra>"
+    )
+    fig_line = px.line(
+        plot_data_line, 
+        x = "month_mid", 
+        y = sel_vars[num_var1],
+        markers = True
+    )
+    fig_line.update_traces(
+        name = "Monthly average",
+        showlegend = True,
+        marker = dict(
+            size = 8, color = "orangered", symbol = "square", 
+            line = dict(width = 0.5, color = "dimgray")
+        ), 
+        line = dict(width = 2, color = "orangered"), 
+        hovertemplate = "Month and year: %{x|%b %Y} <br>" + f"Avg. {sel_vars[num_var1]}: " + "%{y:.2f}" + "<extra></extra>"
+    )
+    fig_dots.add_traces(fig_line.data)
+
+    st.plotly_chart(fig_dots, use_container_width = True)
+
+# plot for two numeric variables and one categorical variable: scatter plot with trend line
+# with points for individual espressos, with first numeric on x-axis, second numeric on y-axis,
+# and categorical as color
+elif var_types == (2, 1, 0):
+    num_var1, num_var2, cat_var = None, None, None
+    for var in sel_vars:
+        if var in num_vars and num_var1 is None:
+            num_var1 = var
+        elif var in num_vars and num_var2 is None:
+            num_var2 = var
+        elif var in cat_vars:
+            cat_var = var
+    
+    plot_data = get_plot_data(df, sel_vars, cat_var, num_var1, num_var2)
+    plot_data_avg = get_plot_data_of_means(df, sel_vars, cat_var, num_var1)
+
+    fig = px.scatter(
+        plot_data, 
+        x = sel_vars[num_var1],
+        y = sel_vars[num_var2],
+        color = sel_vars[cat_var],
+        trendline = "lowess",
+        trendline_scope = "overall",
+        title = f"{sel_vars[num_var2]} vs {sel_vars[num_var1]} per {sel_vars[cat_var]}",
+    )
+    fig.update_traces(
+        customdata = plot_data[[sel_vars[cat_var]]],
+        hovertemplate = f"{sel_vars[num_var1]}: %{{x}} <br>{sel_vars[cat_var]}: %{{customdata[0]}} <br>{sel_vars[num_var2]}: %{{y:.2f}}<extra></extra>"
+    )
+
+    st.plotly_chart(fig, use_container_width = True)
+
+# plot for three numeric variables: scatter plot with trend line
+# with points for individual espressos, with first numeric on x-axis, second numeric on y-axis,
+# and third numeric as color
+elif var_types == (3, 0, 0):
+    plot_data = get_plot_data(df, sel_vars, x_var, y_var, z_var)
+
+    fig = px.scatter(
+        plot_data, 
+        x = sel_vars[x_var], 
+        y = sel_vars[y_var],
+        color = sel_vars[z_var],
+        trendline = "lowess",
+        title = f"{sel_vars[y_var]} vs {sel_vars[x_var]} per {sel_vars[z_var]}",
+    )
+    fig.update_traces(
+        customdata = plot_data[[sel_vars[z_var]]],
+        hovertemplate = f"{sel_vars[x_var]}: %{{x}} <br>{sel_vars[z_var]}: %{{customdata[0]}} <br>{sel_vars[y_var]}: %{{y:.2f}}<extra></extra>"
+    )
+
+    st.plotly_chart(fig, use_container_width = True)
+
+# End plotting ############################################################
 
     
 
