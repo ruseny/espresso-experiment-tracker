@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 from datetime import datetime
-from frontend.src.api_requests import (
+from src.api_requests import (
     get_user_defaults, 
     find_default_index,
     get_users_equipment_data,

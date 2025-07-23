@@ -1,5 +1,5 @@
 import streamlit as st
-from frontend.src.api_requests import (
+from src.api_requests import (
     get_all_producers_list, 
     show_response_feedback
 )

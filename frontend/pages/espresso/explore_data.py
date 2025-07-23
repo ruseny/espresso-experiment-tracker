@@ -363,7 +363,7 @@ with left_d1:
     x_var = st.selectbox(
         "Please select a variable to explore:",
         options = all_vars, 
-        index = 5,  # Default to "evaluation_general"
+        index = 4,  # Default to "extraction_ratio"
         format_func = lambda x: all_vars[x]
     )
     sel_vars[x_var] = all_vars.pop(x_var)
@@ -388,7 +388,7 @@ if add_second_var:
         y_var = st.selectbox(
             "Please select a second variable to explore:",
             options = all_vars, 
-            index = 4, # Default to "extraction_ratio" 
+            index = 5, # Default to "evaluation_general" 
             format_func = lambda x: all_vars[x]
         )
         sel_vars[y_var] = all_vars.pop(y_var)

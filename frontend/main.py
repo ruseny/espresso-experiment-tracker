@@ -24,10 +24,10 @@ new_espresso = st.Page(
     icon = ":material/coffee:"
 )
 
-default_setup = st.Page(
-    "pages/inventory/default_setup.py", 
-    title = "Default Setup", 
-    icon = ":material/settings:"
+explore_espresso_data = st.Page(
+    "pages/espresso/explore_data.py",
+    title = "Explore Espresso Data",
+    icon = ":material/search:"
 )
 
 coffee_purchase = st.Page(
@@ -36,28 +36,28 @@ coffee_purchase = st.Page(
     icon = ":material/shopping_bag:"
 )
 
+owned_equipment = st.Page(
+    "pages/inventory/equipment_purchase.py",
+    title = "Equipment Purchases",
+    icon = ":material/coffee_maker:"
+)
+
+default_setup = st.Page(
+    "pages/inventory/default_setup.py", 
+    title = "Default Setup", 
+    icon = ":material/settings:"
+)
+
 new_coffee_variety = st.Page(
     "pages/selection/new_coffee_variety.py", 
     title = "Add Coffee Variety", 
     icon = ":material/shopping_bag:"
 )
 
-owned_equipment = st.Page(
-    "pages/selection/owned_equipment.py",
-    title = "Equipment Purchases",
-    icon = ":material/coffee_maker:"
-)
-
 new_equipment = st.Page(
-    "pages/inventory/new_equipment.py",
+    "pages/selection/new_equipment.py",
     title = "Add Equipment",
     icon = ":material/coffee_maker:"
-)
-
-explore_espresso_data = st.Page(
-    "pages/espresso/explore_data.py",
-    title = "Explore Espresso Data",
-    icon = ":material/search:"
 )
 
 if "logged_in" not in st.session_state:

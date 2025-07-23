@@ -1,5 +1,5 @@
 import streamlit as st
-from frontend.src.api_requests import (
+from src.api_requests import (
     get_all_coffee_machine_manufacturers_list, 
     get_all_grinder_manufacturers_list,
     show_response_feedback
@@ -7,8 +7,7 @@ from frontend.src.api_requests import (
 import requests
 from datetime import datetime
 
-st.title("New Equipment")
-st.write("You can add new equipment here.")
+st.title("Add new equipment")
 
 st.header("Equipment type")
 
@@ -57,7 +56,7 @@ with left1:
         )
 
 if manufacturer is None:
-    st.error("Manufacturer should be selected to entered to continue.")
+    st.error("Manufacturer should be entered to continue.")
     st.stop()
 
 left2, right2 = st.columns(2)

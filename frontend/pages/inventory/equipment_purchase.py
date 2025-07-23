@@ -1,5 +1,5 @@
 import streamlit as st
-from frontend.src.api_requests import (
+from src.api_requests import (
     get_all_coffee_machines_dict,
     get_all_coffee_machine_manufacturers_list, 
     get_all_grinders_dict,
@@ -10,7 +10,7 @@ from frontend.src.api_requests import (
 import requests
 from datetime import datetime
 
-st.title("Owned Equipment")
+st.title("Equipment purchase")
 st.write("Add an equipment item to your owned equipment list.")
 
 st.header("Equipment Type")
