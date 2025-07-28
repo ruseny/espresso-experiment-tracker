@@ -11,4 +11,4 @@ The app consists of (1) a database that keep the information, (2) a backend/API 
 
 The project uses `MySQL` for database, `fastAPI` for backend/API, and `streamlit` for frontend with `plotly` for visualisations. 
 
-A demo for the data visualisation page is deployed on [Streamlit Community Cloud](https://espr-app-demo.streamlit.app).
+A demo for the data visualisation page is deployed on [Streamlit Community Cloud](https://espr-app-demo.streamlit.app){:target="_blank"}.
