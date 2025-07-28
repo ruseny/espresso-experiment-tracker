@@ -10,3 +10,5 @@ The app consists of (1) a database that keep the information, (2) a backend/API 
 - The frontend has been developed to define new coffee varieties and equipment, add these to the user's inventory, enter new espresso experiments, and visualise existing espresso data
 
 The project uses `MySQL` for database, `fastAPI` for backend/API, and `streamlit` for frontend with `plotly` for visualisations. 
+
+A demo for the data visualisation page is deployed on [Streamlit Community Cloud](https://espr-app-demo.streamlit.app).
