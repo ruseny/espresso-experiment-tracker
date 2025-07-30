@@ -18,6 +18,7 @@
 ### Directories ###
 credentials/
 data/
+chroma_db/
 
 
 ### logs ###
