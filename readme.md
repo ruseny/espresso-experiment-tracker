@@ -4,7 +4,7 @@ _This is a work in progress._
 
 This project was born out of a personal need to find a convenient way to track my experiments with making espresso at home (trying different coffee types, optimising the parameters, as well as my personal evaluation of the results). I also want to store the data in a way that will enable me to analyse it systematically in the future.
 
-The app consists of (1) a database that keep the information, (2) a backend/API that writes to and reads from the database, and (3) a frontend to facilitate data entry and analyses. The project uses `MySQL` for database, `fastAPI` for backend/API, and `streamlit` for frontend with `plotly` for visualisations. 
+The app consists of (1) a database that keep the information, (2) a backend/API that writes to and reads from the database, and (3) a frontend to facilitate data entry and analyses. The project uses `MySQL` for database, `fastAPI` for backend/API, and `streamlit` for frontend with `plotly` for visualisations.
 
 The current stage is as follows:
 
